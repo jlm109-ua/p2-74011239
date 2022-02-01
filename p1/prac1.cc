@@ -1,7 +1,7 @@
 // Programación 2 - Práctica 1
 // DNI: 74011239E
 // Nombre: Juan Llinares Mauri
-
+ 
 #include <iostream>
 #include <cstdlib> // Para rand(), srand() y atoi()
 #include <string.h>
