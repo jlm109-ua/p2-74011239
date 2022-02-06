@@ -97,6 +97,8 @@ void nameHero(Hero &hero){ // Función para nombrar al héroe
 void setDistribution(hero){ // Funcion que implementa el ataque y defensa del héroe
   string distribution; // Cadena auxiliar para la distribución
   bool isDistributionIncorrect = false; // Boolean para comprobar si la distribución es correcta
+  int attack = 0;
+  int defense = 0;
 
   do{
     cout<<EAD; // Pedimos la distribución
@@ -107,6 +109,8 @@ void setDistribution(hero){ // Funcion que implementa el ataque y defensa del h�
       cout<<ERR_WRONG_DISTRIBUTION;
       isDistributionIncorrect = true;
     }else{ // Definimos sus estadísticas
+
+
       hero.features.attack = ;
       hero.features.defense = ;
       hero.features.hp = ;
@@ -114,12 +118,26 @@ void setDistribution(hero){ // Funcion que implementa el ataque y defensa del h�
   }while(isDistributionIncorrect);
 }
 
-bool checkDistribution(string distribution){ // Devuelve true en caso de error y false cuando está todo correcto
-  if(distribution.length = 0){
+bool checkDistribution(string distribution,int &attack,int &defense){ // Devuelve true en caso de error y false cuando está todo correcto
+  if(distribution.length = 0){ // Si la cadena está vacía --> Error
     return true;
   }
 
-  
+  string satt; 
+  string sdef; // Cadenas auxiliares para ataque y defensa
+  size_t pos = distribution.find("/"); // Posición del caracter "/" que separa ataque y defensa
+
+  satt = distribution.substr(0,pos-1);
+  sdef = distribution.substr(pos+1);
+
+  attack = stoi(satt);
+  defense = stoi(sdef);
+
+  if((attack + defense) > 100 || (attack + defense) < 0){
+    return true;
+  } 
+
+  return false;
 }
 
 int main(int argc,char *argv[]){
