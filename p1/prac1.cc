@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <cstdlib> // Para rand(), srand() y atoi()
-#include <string.h>
+#include <string.h> // Para strings y sus opciones
 
 using namespace std;
 
@@ -12,7 +12,12 @@ const int KNAME=32;
 const int KENEMIES=5;
 const int KPOINTS=200;
 const int KDICE=20; // Número de caras del dado
-const String ERR_Wrong_Name = "ERROR: wrong name";
+
+const string ERR_WRONG_NAME = "ERROR: wrong name"; // Error para cuando el nombre introducido es incorrecto
+const string ERR_WRONG_DISTRIBUTION = "ERROR: wrong distribution"; // Error para cuando la distribución es errónea
+
+const string EHN = "Enter hero name: "; // Cadena para pedir el nombre del héroe
+const string EAD = "Enter attack/defense: "; // Cadena para pedir la distribución del ataque y la defensa del héroe
 
 struct Core{
   int attack;
@@ -48,19 +53,9 @@ int rollDice(){
 
 Hero createHero(){
     Hero hero; // Héroe
-    String sname; // Cadena para el nombre
-    bool isNameIncorrect = false; // Boolean para comprobar si el nombre es correcto
     
-    do{
-        cout<<"Enter hero name: "; // Pedimos nombre
-        cin>>sname; // Guardamos nombre en la string auxiliar
-        
-        if(sname.length == 0){
-            cout<<ERR_Wrong_Name; // Emitimos error si el nombre es incorrecto
-            isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
-        }else
-            hero.name = sname; // Le asignamos el nombre al héroe
-    }while(isNameIncorrect);
+    nameHero(hero); // Nombra al héroe
+    setDistribution(hero); // Distribuye el ataque y la defensa del héroe
 
 }
 
@@ -81,6 +76,50 @@ void showMenu(){
        << "4- Report" << endl
        << "q- Quit" << endl
        << "Option: ";
+}
+
+void nameHero(Hero &hero){ // Función para nombrar al héroe
+  string sname; // Cadena auxiliar para el nombre
+  bool isNameIncorrect = false; // Boolean para comprobar si el nombre es correcto
+    
+  do{
+      cout<<EHN; // Pedimos nombre
+      getline(cin,sname,'\n'); // Guardamos nombre en la string auxiliar
+      
+      if(sname.length == 0){
+          cout<<ERR_Wrong_Name; // Emitimos error si el nombre es incorrecto
+          isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
+      }else
+          hero.name = sname; // Le asignamos el nombre al héroe
+  }while(isNameIncorrect);
+}
+
+void setDistribution(hero){ // Funcion que implementa el ataque y defensa del héroe
+  string distribution; // Cadena auxiliar para la distribución
+  bool isDistributionIncorrect = false; // Boolean para comprobar si la distribución es correcta
+
+  do{
+    cout<<EAD; // Pedimos la distribución
+    getline(cin,distribution,'\n'); // Guardamos la distribución en una cadena auxiliar
+
+
+    if(checkDistribution(distribution)){ // Comprobamos si hay algún fallo
+      cout<<ERR_WRONG_DISTRIBUTION;
+      isDistributionIncorrect = true;
+    }else{ // Definimos sus estadísticas
+      hero.features.attack = ;
+      hero.features.defense = ;
+      hero.features.hp = ;
+    }
+  }while(isDistributionIncorrect);
+}
+
+bool checkDistribution(string distribution){ // Devuelve true en caso de error y false cuando está todo correcto
+  if(distribution.length = 0){
+    return true;
+  }
+
+  
 }
 
 int main(int argc,char *argv[]){
