@@ -52,10 +52,12 @@ int rollDice(){
 }
 
 Hero createHero(){
-    Hero hero; // Héroe
+  Hero hero; // Héroe
     
-    nameHero(hero); // Nombra al héroe
-    setDistribution(hero); // Distribuye el ataque y la defensa del héroe
+  nameHero(hero); // Nombra al héroe
+  setDistribution(hero); // Distribuye el ataque y la defensa del héroe
+  
+  // SEGUIR CON EL ATAQUE ESPECIAL
 
 }
 
@@ -87,18 +89,19 @@ void nameHero(Hero &hero){ // Función para nombrar al héroe
       getline(cin,sname,'\n'); // Guardamos nombre en la string auxiliar
       
       if(sname.length == 0){
-          cout<<ERR_Wrong_Name; // Emitimos error si el nombre es incorrecto
-          isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
+        cout<<ERR_Wrong_Name; // Emitimos error si el nombre es incorrecto
+        isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
       }else
-          hero.name = sname; // Le asignamos el nombre al héroe
+        isNameIncorrect = false;
+        hero.name = sname; // Le asignamos el nombre al héroe
   }while(isNameIncorrect);
 }
 
 void setDistribution(hero){ // Funcion que implementa el ataque y defensa del héroe
   string distribution; // Cadena auxiliar para la distribución
   bool isDistributionIncorrect = false; // Boolean para comprobar si la distribución es correcta
-  int attack = 0;
-  int defense = 0;
+  float attack = 0;
+  float defense = 0;
 
   do{
     cout<<EAD; // Pedimos la distribución
@@ -109,16 +112,15 @@ void setDistribution(hero){ // Funcion que implementa el ataque y defensa del h�
       cout<<ERR_WRONG_DISTRIBUTION;
       isDistributionIncorrect = true;
     }else{ // Definimos sus estadísticas
-
-
-      hero.features.attack = ;
-      hero.features.defense = ;
-      hero.features.hp = ;
+      isDistributionIncorrect = false;
+      hero.features.attack = KPOINTS*attack;
+      hero.features.defense = KPOINTS*defense;
+      hero.features.hp = hero.features.defense*2;
     }
   }while(isDistributionIncorrect);
 }
 
-bool checkDistribution(string distribution,int &attack,int &defense){ // Devuelve true en caso de error y false cuando está todo correcto
+bool checkDistribution(string distribution,float &attack,float &defense){ // Devuelve true en caso de error y false cuando está todo correcto
   if(distribution.length = 0){ // Si la cadena está vacía --> Error
     return true;
   }
@@ -127,15 +129,18 @@ bool checkDistribution(string distribution,int &attack,int &defense){ // Devuelv
   string sdef; // Cadenas auxiliares para ataque y defensa
   size_t pos = distribution.find("/"); // Posición del caracter "/" que separa ataque y defensa
 
-  satt = distribution.substr(0,pos-1);
-  sdef = distribution.substr(pos+1);
+  satt = distribution.substr(0,pos-1); // Extraemos el ataque
+  sdef = distribution.substr(pos+1); // Extraemos la defensa
 
-  attack = stoi(satt);
-  defense = stoi(sdef);
+  int iattack = stoi(satt); 
+  int idefense = stoi(sdef); // Convertimos ataque y defensa a int
 
-  if((attack + defense) > 100 || (attack + defense) < 0){
+  if((iattack + idefense) <= 100 && (iattack + idefense) > 0 && iattack > 0 && idefense > 0){ // Comprobamos las restricciones
     return true;
   } 
+
+  attack = iattack/100;
+  defense = idefense/100;
 
   return false;
 }
