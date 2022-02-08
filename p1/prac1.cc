@@ -8,16 +8,40 @@
 
 using namespace std;
 
+// CONSTANTES NUMÉRICAS
+
 const int KNAME=32;
 const int KENEMIES=5;
 const int KPOINTS=200;
 const int KDICE=20; // Número de caras del dado
 
+// CONSTANTES DE ERROR
+
 const string ERR_WRONG_NAME = "ERROR: wrong name"; // Error para cuando el nombre introducido es incorrecto
 const string ERR_WRONG_DISTRIBUTION = "ERROR: wrong distribution"; // Error para cuando la distribución es errónea
+const string ERR_WRONG_OPTION = "ERROR: wrong option"; // Error para cuando se elige una opción errónea en el menú
+
+// CONSTANTES STRING DEL PROGRAMA
 
 const string EHN = "Enter hero name: "; // Cadena para pedir el nombre del héroe
 const string EAD = "Enter attack/defense: "; // Cadena para pedir la distribución del ataque y la defensa del héroe
+const string ENEMY = "[Enemy]"; // Cadena para mostrar un enemigo
+const string BREED = "Breed: "; // Cadena para mostrar la raza de un enemigo
+const string ATTACK = "Attack: "; // Cadena para mostrar el ataque
+const string DEFENSE = "Defense: "; // Cadena para mostrar la defensa
+const string HP = "Health Points: "; // Cadena para mostrar la vida
+const string HITPOINTS = "Hit Points: "; // Cadena para mostrar los hit points
+const string ENEMYHP = "Enemy health points: "; // Cadena para mostrar la vida del enemigo
+const string HEROHP = "Hero health points: "; // Cadena para mostrar la vida del héroe
+const string ENEMYKILLED = "Enemy killed"; // Cadena para mostrar cuando un enemigo ha muerto
+const string HERODEAD = "You are dead"; // Cadena para mostrar que el héroe ha muerto.
+const string SAXOLOTL = "Axolotl"; // Raza de ajolote
+const string STROLL = "Troll"; // Raza de trol
+const string SORC = "Orc"; // Raza de ogro
+const string SHELLHOUND = "Hellhound"; // Raza de perro del infierno
+const string SDRAGON = "Dragon"; // Raza de dragón
+const string HERO_FIGHT_ENEMY = "[Hero -> Enemy]"; // Cadena para imprimir por pantalla que el héroe va a luchar contra el enemigo
+const string ENEMY_FIGHT_HERO = "[Enemy -> Hero]"; // Cadena para imprimir por pantalla que el enemigo va a luchar contra el héroe
 
 struct Core{
   int attack;
@@ -47,24 +71,123 @@ struct Hero{
   int kills[KENEMIES];
 };
 
+void nameHero(Hero &hero);
+void setDistribution(Hero hero);
+bool checkDistribution(string distribution,float &attack,float &defense);
+void printEnemy(Enemy enemy);
+void giveExp(Hero &hero,Enemy &enemy);
+
 int rollDice(){
   return rand()%KDICE+1;
 }
 
 Hero createHero(){
-  Hero hero; // Héroe
+  Hero hero; // Héroe ???
     
   nameHero(hero); // Nombra al héroe
   setDistribution(hero); // Distribuye el ataque y la defensa del héroe
+  hero.special = true; // Inicializamos su especial a true para que pueda ser usado.
+  hero.exp = 0; // Inicializamos su experiencia a 0
   
-  // SEGUIR CON EL ATAQUE ESPECIAL
+  for(int i = 0;i < hero.kills.size();i++) // Inicializamos sus kills a 0
+    hero.kills[i] = 0;
 
+  return hero;
 }
 
 Enemy createEnemy(){
+  int dice = rollDice();
+
+  Enemy enemy;
+
+  if(dice >= 1 && dice <= 6){ // Creamos un ajolote
+    enemy.name = AXOLOTL; // Breed::AXOLOTL ???????????
+    enemy.features.attack = 40;
+    enemy.features.defense = 40;
+    enemy.features.hp = enemy.features.defense*2;
+  }else if(dice >= 7 && dice <= 11){ // Creamos un Trol
+    enemy.name = TROLL;
+    enemy.features.attack = 60;
+    enemy.features.defense = 80;
+    enemy.features.hp = enemy.features.defense*2;
+  }else if(dice >= 12 && dice <= 15){ // Creamos un Ogro
+    enemy.name = ORC;
+    enemy.features.attack = 80;
+    enemy.features.defense = 120;
+    enemy.features.hp = enemy.features.defense*2;
+  }else if(dice >= 16 && dice <= 18){ // Creamos un perro del infierno
+    enemy.name = HELLHOUND;
+    enemy.features.attack = 120;
+    enemy.features.defense = 100;
+    enemy.features.hp = enemy.features.defense*2;
+  }else if(dice >= 19 && dice <= 20){ // Creamos un Dragon
+    enemy.name = DRAGON;
+    enemy.features.attack = 160;
+    enemy.features.defense = 140;
+    enemy.features.hp = enemy.features.defense*2;
+  }
+
+  printEnemy(enemy);
+
+  return enemy;
 }
 
 void fight(Hero &hero,Enemy &enemy){
+  cout<<HERO_FIGHT_ENEMY<<endl; // Imprimimos la lucha del héroe contra el enemigo
+
+  int attackHero = rollDice()*5; // Guardamos el ataque obtenido por el dado
+  cout<<ATTACK<<hero.features.attack<<" + "<<attackHero<<endl; // Imprimimos por pantalla el ataque que tendrá el héroe
+  attackHero += hero.features.attack; // Guardamos el ataque del héroe para esta batalla
+
+  int defenseEnemy = rollDice()*5; // Guardamos la defensa obtenida por el dado
+  cout<<DEFENSE<<enemy.features.defense<<" + "<<defenseEnemy<<endl; // Imprimimos por pantalla la defensa que tendrá el enemigo
+  defenseEnemy += enemy.features.defense; // Guardamos la defensa del enemigo para esta batalla
+
+  int hitPoints =  attackHero - defenseEnemy; // Guardamos los hit points en una variable
+  
+  if(hitPoints < 0) // Si los hitPoints son negativos los ponemos a 0
+    hitPoints = 0;
+
+  cout<<HITPOINTS<<hitPoints<<endl; // Imprimimos por pantalla los hit points
+  enemy.features.hp -= hitPoints; // Hacemos daño al enemigo
+
+  if(enemy.features.hp < 0) // Si la salud del enemigo es negativa la ponemos a 0
+    enemy.features.hp = 0;
+  
+  cout<<ENEMYHP<<enemy.features.hp<<endl; // Imprimimos por pantalla la salud del enemigo
+
+  if(enemy.features.hp <= 0){
+    cout<<ENEMYKILLED<<endl; // Imprimimos por pantalla que el enemigo ha sido derrotado
+    giveExp(hero,enemy); // Damos experiencia al héroe
+  }else{ // Si el enemigo sigue vivo, el combate continua
+    cout<<ENEMY_FIGHT_HERO<<endl; // Imprimimos la lucha del enemigo contra el héroe
+
+    int attackEnemy = rollDice()*5; // Guardamos el ataque obtenido por el dado
+    cout<<ATTACK<<enemy.features.attack<<" + "<<attackEnemy<<endl; // Imprimimos por pantalla el ataque que tendrá el enemigo
+    attackEnemy += enemy.features.attack; // Guardamos el ataque del enemigo para esta batalla
+
+    int defenseHero = rollDice()*5; // Guardamos la defensa obtenida por el dado
+    cout<<DEFENSE<<hero.features.defense<<" + "<<defenseHero<<endl; // Imprimimos por pantalla la defensa que tendrá el héroe
+    defenseHero += hero.features.defense; // Guardamos la defensa del héroe para esta batalla
+
+    int hitPoints = attackEnemy - defenseHero; // Guardamos los hit points en una variable
+
+    if(hitPoints < 0) // Si los hitPoints son negativos los ponemos a 0
+      hitPoints = 0;
+
+    cout<<HITPOINTS<<hitPoints<<endl; // Imprimimos por pantalla los hit points
+    hero.features.hp -= hitPoints; // Hacemos daño al héroe
+
+    if(hero.features.hp < 0) // Si la salud del héroe es negativa la ponemos a 0
+      hero.features.hp = 0;
+    
+    cout<<HEROHP<<hero.features.hp<<endl; // Imprimimos por pantalla la salud del héroe
+
+    if(hero.features.hp == 0){
+      cout<<HERODEAD<<endl; // Imprimimos que el héroe ha sido derrotado
+    }
+  }
+  
 }
 
 void report(const Hero &hero){
@@ -88,8 +211,8 @@ void nameHero(Hero &hero){ // Función para nombrar al héroe
       cout<<EHN; // Pedimos nombre
       getline(cin,sname,'\n'); // Guardamos nombre en la string auxiliar
       
-      if(sname.length == 0){
-        cout<<ERR_Wrong_Name; // Emitimos error si el nombre es incorrecto
+      if(sname.length() == 0){
+        cout<<ERR_WRONG_NAME<<endl; // Emitimos error si el nombre es incorrecto
         isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
       }else
         isNameIncorrect = false;
@@ -97,7 +220,7 @@ void nameHero(Hero &hero){ // Función para nombrar al héroe
   }while(isNameIncorrect);
 }
 
-void setDistribution(hero){ // Funcion que implementa el ataque y defensa del héroe
+void setDistribution(Hero &hero){ // Funcion que implementa el ataque y defensa del héroe
   string distribution; // Cadena auxiliar para la distribución
   bool isDistributionIncorrect = false; // Boolean para comprobar si la distribución es correcta
   float attack = 0;
@@ -108,8 +231,8 @@ void setDistribution(hero){ // Funcion que implementa el ataque y defensa del h�
     getline(cin,distribution,'\n'); // Guardamos la distribución en una cadena auxiliar
 
 
-    if(checkDistribution(distribution)){ // Comprobamos si hay algún fallo
-      cout<<ERR_WRONG_DISTRIBUTION;
+    if(checkDistribution(distribution,attack,defense)){ // Comprobamos si hay algún fallo
+      cout<<ERR_WRONG_DISTRIBUTION<<endl; // Imprimimos el error por pantalla
       isDistributionIncorrect = true;
     }else{ // Definimos sus estadísticas
       isDistributionIncorrect = false;
@@ -121,7 +244,7 @@ void setDistribution(hero){ // Funcion que implementa el ataque y defensa del h�
 }
 
 bool checkDistribution(string distribution,float &attack,float &defense){ // Devuelve true en caso de error y false cuando está todo correcto
-  if(distribution.length = 0){ // Si la cadena está vacía --> Error
+  if(distribution.length() = 0){ // Si la cadena está vacía --> Error
     return true;
   }
 
@@ -132,17 +255,40 @@ bool checkDistribution(string distribution,float &attack,float &defense){ // Dev
   satt = distribution.substr(0,pos-1); // Extraemos el ataque
   sdef = distribution.substr(pos+1); // Extraemos la defensa
 
-  int iattack = stoi(satt); 
-  int idefense = stoi(sdef); // Convertimos ataque y defensa a int
+  int iattack = atoi(satt); 
+  int idefense = atoi(sdef); // Convertimos ataque y defensa a int
 
   if((iattack + idefense) <= 100 && (iattack + idefense) > 0 && iattack > 0 && idefense > 0){ // Comprobamos las restricciones
     return true;
   } 
 
-  attack = iattack/100;
-  defense = idefense/100;
+  attack = iattack/100; // Establecemos el porcentaje de ataque
+  defense = idefense/100; // Establecemos el porcentaje de defensa
 
   return false;
+}
+
+void printEnemy(Enemy enemy){ // Función para imprimir toda la información del enemigo por pantalla
+  cout
+    <<ENEMY<<endl
+    <<BREED<<enemy.name<<endl
+    <<ATTACK<<enemy.features.attack<<endl
+    <<DEFENSE<<enemy.features.defense<<endl
+    <<HP<<enemy.features.hp<<endl;
+}
+
+void giveExp(Hero &hero,Enemy &enemy){
+  if(strcmp(enemy.name,SAXOLOTL) == 0){
+    hero.exp += 100;
+  }else if(strcmp(enemy.name,STROL) == 0){
+    hero.exp += 150;
+  }else if(strcmp(enemy.name,SORC) == 0){
+    hero.exp += 200;
+  }else if(strcmp(enemy.name,SHELLHOUND) == 0){
+    hero.exp += 300;
+  }else if(strcmp(enemy.name,SDRAGON) == 0){
+    hero.exp += 400;
+  }
 }
 
 int main(int argc,char *argv[]){
@@ -152,6 +298,24 @@ int main(int argc,char *argv[]){
   else{
     srand(atoi(argv[1])); // Introducimos la semilla para generar números aleatorios
     
-    // Aquí vendrá todo tu código del "main"...
+    char option; // Variable para las opciones del menú
+    bool isOptionIncorrect = true; // Booleano para comprobar que la opción escogida es correcta
+
+    createHero(); // Creamos el héroe
+    createEnemy(); // Creamos el enemigo
+    do{
+      showMenu(); // Imprimimos el menú por pantalla
+      cin<<option;
+      if(option != 1 && option != 2 && option != 3 && option != 4 && option != 'q'){ //  Si la opción es errónea imprimimos el error por pantalla
+        cout<<ERR_WRONG_OPTION<<endl;
+      }else
+        isOptionIncorrect = false;
+    }while(isOptionIncorrect);
+
+    if(option == 1){ // Si option == 1 --> Fight
+      fight(hero,enemy);
+      if(enemy.features.hp == 0)
+        enemy = createEnemy();
+    }
   }
 }
