@@ -35,11 +35,6 @@ const string ENEMYHP = "Enemy health points: "; // Cadena para mostrar la vida d
 const string HEROHP = "Hero health points: "; // Cadena para mostrar la vida del héroe
 const string ENEMYKILLED = "Enemy killed"; // Cadena para mostrar cuando un enemigo ha muerto
 const string HERODEAD = "You are dead"; // Cadena para mostrar que el héroe ha muerto.
-const string SAXOLOTL = "Axolotl"; // Raza de ajolote
-const string STROLL = "Troll"; // Raza de trol
-const string SORC = "Orc"; // Raza de ogro
-const string SHELLHOUND = "Hellhound"; // Raza de perro del infierno
-const string SDRAGON = "Dragon"; // Raza de dragón
 const string HERO_FIGHT_ENEMY = "[Hero -> Enemy]"; // Cadena para imprimir por pantalla que el héroe va a luchar contra el enemigo
 const string ENEMY_FIGHT_HERO = "[Enemy -> Hero]"; // Cadena para imprimir por pantalla que el enemigo va a luchar contra el héroe
 
@@ -89,7 +84,7 @@ Hero createHero(){
   hero.special = true; // Inicializamos su especial a true para que pueda ser usado.
   hero.exp = 0; // Inicializamos su experiencia a 0
   
-  for(int i = 0;i < hero.kills.size();i++) // Inicializamos sus kills a 0
+  for(int i = 0;i < 5;i++) // Inicializamos sus kills a 0
     hero.kills[i] = 0;
 
   return hero;
@@ -101,7 +96,7 @@ Enemy createEnemy(){
   Enemy enemy;
 
   if(dice >= 1 && dice <= 6){ // Creamos un ajolote
-    enemy.name = AXOLOTL; // Breed::AXOLOTL ???????????
+    enemy.name = AXOLOTL;
     enemy.features.attack = 40;
     enemy.features.defense = 40;
     enemy.features.hp = enemy.features.defense*2;
@@ -244,7 +239,7 @@ void setDistribution(Hero &hero){ // Funcion que implementa el ataque y defensa 
 }
 
 bool checkDistribution(string distribution,float &attack,float &defense){ // Devuelve true en caso de error y false cuando está todo correcto
-  if(distribution.length() = 0){ // Si la cadena está vacía --> Error
+  if(distribution.empty()){ // Si la cadena está vacía --> Error
     return true;
   }
 
@@ -278,15 +273,15 @@ void printEnemy(Enemy enemy){ // Función para imprimir toda la información del
 }
 
 void giveExp(Hero &hero,Enemy &enemy){
-  if(strcmp(enemy.name,SAXOLOTL) == 0){
+  if(enemy.name == AXOLOTL){
     hero.exp += 100;
-  }else if(strcmp(enemy.name,STROL) == 0){
+  }else if(enemy.name == TROLL){
     hero.exp += 150;
-  }else if(strcmp(enemy.name,SORC) == 0){
+  }else if(enemy.name == ORC){
     hero.exp += 200;
-  }else if(strcmp(enemy.name,SHELLHOUND) == 0){
+  }else if(enemy.name == HELLHOUND){
     hero.exp += 300;
-  }else if(strcmp(enemy.name,SDRAGON) == 0){
+  }else if(enemy.name == DRAGON){
     hero.exp += 400;
   }
 }
@@ -301,11 +296,11 @@ int main(int argc,char *argv[]){
     char option; // Variable para las opciones del menú
     bool isOptionIncorrect = true; // Booleano para comprobar que la opción escogida es correcta
 
-    createHero(); // Creamos el héroe
-    createEnemy(); // Creamos el enemigo
+    Hero hero = createHero(); // Creamos el héroe
+    Enemy enemy = createEnemy(); // Creamos el enemigo
     do{
       showMenu(); // Imprimimos el menú por pantalla
-      cin<<option;
+      cin>>option;
       if(option != 1 && option != 2 && option != 3 && option != 4 && option != 'q'){ //  Si la opción es errónea imprimimos el error por pantalla
         cout<<ERR_WRONG_OPTION<<endl;
       }else
