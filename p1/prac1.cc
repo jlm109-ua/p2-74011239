@@ -154,6 +154,7 @@ void fight(Hero &hero,Enemy &enemy){
   if(enemy.features.hp <= 0){
     cout<<ENEMYKILLED<<endl; // Imprimimos por pantalla que el enemigo ha sido derrotado
     giveExp(hero,enemy); // Damos experiencia al héroe
+    hero.kills[enemy.name]++; // Aumentamos el contador de kills
   }else{ // Si el enemigo sigue vivo, el combate continua
     cout<<ENEMY_FIGHT_HERO<<endl; // Imprimimos la lucha del enemigo contra el héroe
 
@@ -180,9 +181,9 @@ void fight(Hero &hero,Enemy &enemy){
 
     if(hero.features.hp == 0){
       cout<<HERODEAD<<endl; // Imprimimos que el héroe ha sido derrotado
+      report(hero);
     }
   }
-  
 }
 
 void report(const Hero &hero){
