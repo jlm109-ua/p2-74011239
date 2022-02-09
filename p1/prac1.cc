@@ -331,11 +331,11 @@ int main(int argc,char *argv[]){
           }else
             cout<<ERR_CANNOT_RUN_AWAY<<endl; // Informamos de que no ha podido huir del enemigo
         }else if(option == 3){ // Si option == 3 --> Special
-          if(hero.special)
+          if(hero.special){
             speAtt = true;
             fight(hero,enemy,speAtt);
             speAtt = false;
-          else
+          }else
             cout<<ERR_SPECIAL_NOT_AVAILABLE<<endl;
         }else if(option == 4){ // Si option == 4 --> Report
 
