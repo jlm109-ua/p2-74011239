@@ -20,6 +20,7 @@ const int KDICE=20; // Número de caras del dado
 const string ERR_WRONG_NAME = "ERROR: wrong name"; // Error para cuando el nombre introducido es incorrecto
 const string ERR_WRONG_DISTRIBUTION = "ERROR: wrong distribution"; // Error para cuando la distribución es errónea
 const string ERR_WRONG_OPTION = "ERROR: wrong option"; // Error para cuando se elige una opción errónea en el menú
+const string ERR_CANNOT_RUN_AWAY = "ERROR: cannot run away"; // Error para cuando no se pueda escapar
 
 // CONSTANTES STRING DEL PROGRAMA
 
@@ -34,9 +35,10 @@ const string HITPOINTS = "Hit Points: "; // Cadena para mostrar los hit points
 const string ENEMYHP = "Enemy health points: "; // Cadena para mostrar la vida del enemigo
 const string HEROHP = "Hero health points: "; // Cadena para mostrar la vida del héroe
 const string ENEMYKILLED = "Enemy killed"; // Cadena para mostrar cuando un enemigo ha muerto
-const string HERODEAD = "You are dead"; // Cadena para mostrar que el héroe ha muerto.
+const string HERODEAD = "You are dead"; // Cadena para mostrar que el héroe ha muerto
 const string HERO_FIGHT_ENEMY = "[Hero -> Enemy]"; // Cadena para imprimir por pantalla que el héroe va a luchar contra el enemigo
 const string ENEMY_FIGHT_HERO = "[Enemy -> Hero]"; // Cadena para imprimir por pantalla que el enemigo va a luchar contra el héroe
+const string RUNAWAY = "You run away"; // Cadena para informar de que el héroe ha huído
 
 struct Core{
   int attack;
@@ -86,6 +88,7 @@ Hero createHero(){
   setDistribution(hero); // Distribuye el ataque y la defensa del héroe
   hero.special = true; // Inicializamos su especial a true para que pueda ser usado.
   hero.exp = 0; // Inicializamos su experiencia a 0
+  hero.runaways = 3;
   
   for(int i = 0;i < 5;i++) // Inicializamos sus kills a 0
     hero.kills[i] = 0;
@@ -299,6 +302,7 @@ int main(int argc,char *argv[]){
     
     char option; // Variable para las opciones del menú
     bool isOptionIncorrect = true; // Booleano para comprobar que la opción escogida es correcta
+    bool canRunAway = true; // Booleano para comprobar que el héroe no huya consecutivamente
 
     Hero hero = createHero(); // Creamos el héroe
     Enemy enemy = createEnemy(); // Creamos el enemigo
@@ -308,13 +312,22 @@ int main(int argc,char *argv[]){
       if(option != 1 && option != 2 && option != 3 && option != 4 && option != 'q'){ //  Si la opción es errónea imprimimos el error por pantalla
         cout<<ERR_WRONG_OPTION<<endl;
       }else
+        if(option == 1){ // Si option == 1 --> Fight
+          fight(hero,enemy); // Lucha contra el enemigo
+          canRunAway = true; // Activamos canRunAway pues ha habido una pelea
+          if(enemy.features.hp == 0)
+            enemy = createEnemy(); // Si la vida del enemigo llega a 0, creamos uno nuevo.
+        }else if(option == 2){ // Si option == 2 --> Run Away
+          if(hero.runaways > 0 && canRunAway){ // Comprobamos que no haya huido antes y que le queden runaways
+            cout<<RUNAWAY<<endl; // Imprimimos el éxito de la huída
+            enemy = createEnemy(); // Creamos un nuevo enemigo
+            hero.runaways--; // Le quitamos un runaway al héroe
+            canRunAway = false; // Desactivamos el canRunAway
+          }else
+            cout<<ERR_CANNOT_RUN_AWAY<<endl; // Informamos de que no ha podido huir del enemigo
+        }
         isOptionIncorrect = false;
-    }while(isOptionIncorrect);
 
-    if(option == 1){ // Si option == 1 --> Fight
-      fight(hero,enemy);
-      if(enemy.features.hp == 0)
-        enemy = createEnemy();
-    }
+    }while(isOptionIncorrect);
   }
 }
