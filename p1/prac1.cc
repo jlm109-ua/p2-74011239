@@ -66,6 +66,9 @@ struct Hero{
   int kills[KENEMIES];
 };
 
+void fight(Hero &hero,Enemy &enemy);
+void report(const Hero &hero);
+void showMenu();
 void nameHero(Hero &hero);
 void setDistribution(Hero hero);
 bool checkDistribution(string distribution,float &attack,float &defense);
