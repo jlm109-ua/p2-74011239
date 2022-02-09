@@ -40,6 +40,11 @@ const string HERODEAD = "You are dead"; // Cadena para mostrar que el héroe ha 
 const string HERO_FIGHT_ENEMY = "[Hero -> Enemy]"; // Cadena para imprimir por pantalla que el héroe va a luchar contra el enemigo
 const string ENEMY_FIGHT_HERO = "[Enemy -> Hero]"; // Cadena para imprimir por pantalla que el enemigo va a luchar contra el héroe
 const string RUNAWAY = "You run away"; // Cadena para informar de que el héroe ha huído
+const string NAME = "Name: "; // Cadena para mostrar el nombre
+const string SPECIAL = "Special: "; // Cadena para mostrar si el ataque especial está disponible
+const string RUNAWAYS = "Runaways: "; // Cadena para mostrar los runaways del héroe restantes
+const string EXP = "Exp: "; // Cadena para mostrar la experiencia del héroe
+const string KILLS = "Enemies killed: "; // Cadena para mostrar los enemigos derrotados
 
 struct Core{
   int attack;
@@ -77,6 +82,7 @@ void setDistribution(Hero hero);
 bool checkDistribution(string distribution,float &attack,float &defense);
 void printEnemy(Enemy enemy);
 void giveExp(Hero &hero,Enemy &enemy);
+void printKills(Hero hero);
 
 int rollDice(){
   return rand()%KDICE+1;
@@ -196,7 +202,23 @@ void fight(Hero &hero,Enemy &enemy,bool speAtt){
   }
 }
 
-void report(const Hero &hero){
+void report(const Hero &hero){ // Imprimimos por pantalla toda la información del héroe
+  cout<<"[Report]"<<endl
+      <<NAME<<hero.name<<endl
+      <<ATTACK<<hero.features.attack<<endl
+      <<DEFENSE<<hero.features.defense<<endl
+      <<HP<<hero.features.hp<<endl;
+  
+  if(hero.special) // Si el héroe tiene el ataque especial disponible imprimimos "yes", en otro caso: "no"
+    cout<<SPECIAL<<"yes"<<endl;
+  else
+    cout<<SPECIAL<<"no"<<endl;
+
+  cout<<RUNAWAYS<<hero.runaways<<endl
+      <<EXP<<hero.exp<<endl
+      <<KILLS;
+
+  printKills(hero);
 }
 
 void showMenu(){
@@ -283,7 +305,7 @@ void printEnemy(Enemy enemy){ // Función para imprimir toda la información del
     <<HP<<enemy.features.hp<<endl;
 }
 
-void giveExp(Hero &hero,Enemy &enemy){
+void giveExp(Hero &hero,Enemy &enemy){ // Función para repartir la experiencia al héroe según el enemigo derrotado
   if(enemy.name == AXOLOTL){
     hero.exp += 100;
   }else if(enemy.name == TROLL){
@@ -295,6 +317,15 @@ void giveExp(Hero &hero,Enemy &enemy){
   }else if(enemy.name == DRAGON){
     hero.exp += 400;
   }
+}
+
+void printKills(Hero hero){ // Función para imprimir por pantalla los enemigos derrotados
+  cout<<"- Axolotl: "<<hero.kills[0]<<endl
+      <<"- Troll: "<<hero.kills[1]<<endl
+      <<"- Orc: "<<hero.kills[2]<<endl
+      <<"- Hellhound"<<hero.kills[3]<<endl
+      <<"- Dragon"<<hero.kills[4]<<endl
+      <<"- Total"<<hero.kills[0]+hero.kills[1]+hero.kills[2]+hero.kills[3]+hero.kills[4]<<endl;
 }
 
 int main(int argc,char *argv[]){
@@ -338,7 +369,7 @@ int main(int argc,char *argv[]){
           }else
             cout<<ERR_SPECIAL_NOT_AVAILABLE<<endl;
         }else if(option == 4){ // Si option == 4 --> Report
-
+          report(hero);
         }else if(option == 'q'){ // Si option == 4 --> Quit
 
         }
