@@ -21,6 +21,7 @@ const string ERR_WRONG_NAME = "ERROR: wrong name"; // Error para cuando el nombr
 const string ERR_WRONG_DISTRIBUTION = "ERROR: wrong distribution"; // Error para cuando la distribución es errónea
 const string ERR_WRONG_OPTION = "ERROR: wrong option"; // Error para cuando se elige una opción errónea en el menú
 const string ERR_CANNOT_RUN_AWAY = "ERROR: cannot run away"; // Error para cuando no se pueda escapar
+const string ERR_SPECIAL_NOT_AVAILABLE = "ERROR: special not available"; // Error para cuando el ataque especial no esté disponible
 
 // CONSTANTES STRING DEL PROGRAMA
 
@@ -68,7 +69,7 @@ struct Hero{
   int kills[KENEMIES];
 };
 
-void fight(Hero &hero,Enemy &enemy);
+void fight(Hero &hero,Enemy &enemy,bool speAtt);
 void report(const Hero &hero);
 void showMenu();
 void nameHero(Hero &hero);
@@ -133,10 +134,13 @@ Enemy createEnemy(){
   return enemy;
 }
 
-void fight(Hero &hero,Enemy &enemy){
+void fight(Hero &hero,Enemy &enemy,bool speAtt){
   cout<<HERO_FIGHT_ENEMY<<endl; // Imprimimos la lucha del héroe contra el enemigo
 
   int attackHero = rollDice()*5; // Guardamos el ataque obtenido por el dado
+  if(hero.special && speAtt){
+    attackHero = attackHero * 3;
+  }
   cout<<ATTACK<<hero.features.attack<<" + "<<attackHero<<endl; // Imprimimos por pantalla el ataque que tendrá el héroe
   attackHero += hero.features.attack; // Guardamos el ataque del héroe para esta batalla
 
@@ -303,6 +307,7 @@ int main(int argc,char *argv[]){
     char option; // Variable para las opciones del menú
     bool isOptionIncorrect = true; // Booleano para comprobar que la opción escogida es correcta
     bool canRunAway = true; // Booleano para comprobar que el héroe no huya consecutivamente
+    bool speAtt = false; // Booleano para saber cuando se usa el ataque especial
 
     Hero hero = createHero(); // Creamos el héroe
     Enemy enemy = createEnemy(); // Creamos el enemigo
@@ -313,7 +318,7 @@ int main(int argc,char *argv[]){
         cout<<ERR_WRONG_OPTION<<endl;
       }else
         if(option == 1){ // Si option == 1 --> Fight
-          fight(hero,enemy); // Lucha contra el enemigo
+          fight(hero,enemy,speAtt); // Lucha contra el enemigo
           canRunAway = true; // Activamos canRunAway pues ha habido una pelea
           if(enemy.features.hp == 0)
             enemy = createEnemy(); // Si la vida del enemigo llega a 0, creamos uno nuevo.
@@ -325,6 +330,17 @@ int main(int argc,char *argv[]){
             canRunAway = false; // Desactivamos el canRunAway
           }else
             cout<<ERR_CANNOT_RUN_AWAY<<endl; // Informamos de que no ha podido huir del enemigo
+        }else if(option == 3){ // Si option == 3 --> Special
+          if(hero.special)
+            speAtt = true;
+            fight(hero,enemy,speAtt);
+            speAtt = false;
+          else
+            cout<<ERR_SPECIAL_NOT_AVAILABLE<<endl;
+        }else if(option == 4){ // Si option == 4 --> Report
+
+        }else if(option == 'q'){ // Si option == 4 --> Quit
+
         }
         isOptionIncorrect = false;
 
