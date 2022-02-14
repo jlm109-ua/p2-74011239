@@ -74,6 +74,8 @@ struct Hero{
   int kills[KENEMIES];
 };
 
+// RECOPILATORIO DE LAS FUNCIONES DEL PROGRAMA
+
 void fight(Hero &hero,Enemy &enemy,bool speAtt);
 void report(const Hero &hero);
 void showMenu();
@@ -89,7 +91,7 @@ int rollDice(){
 }
 
 Hero createHero(){
-  Hero hero; // Héroe ???
+  Hero hero;
     
   nameHero(hero); // Nombra al héroe
   setDistribution(hero); // Distribuye el ataque y la defensa del héroe
@@ -204,21 +206,20 @@ void fight(Hero &hero,Enemy &enemy,bool speAtt){
 
 void report(const Hero &hero){ // Imprimimos por pantalla toda la información del héroe
   cout<<"[Report]"<<endl
-      <<NAME<<hero.name<<endl
-      <<ATTACK<<hero.features.attack<<endl
-      <<DEFENSE<<hero.features.defense<<endl
-      <<HP<<hero.features.hp<<endl;
+      <<NAME<<hero.name<<endl // Imprimimos el nombre del héroe
+      <<ATTACK<<hero.features.attack<<endl // Imprimimos el ataque del héroe
+      <<DEFENSE<<hero.features.defense<<endl // Imprimimos la defensa del héroe
+      <<HP<<hero.features.hp<<endl; // Imprimimos la vida del héroe
   
   if(hero.special) // Si el héroe tiene el ataque especial disponible imprimimos "yes", en otro caso: "no"
     cout<<SPECIAL<<"yes"<<endl;
   else
     cout<<SPECIAL<<"no"<<endl;
 
-  cout<<RUNAWAYS<<hero.runaways<<endl
-      <<EXP<<hero.exp<<endl
+  cout<<RUNAWAYS<<hero.runaways<<endl // Imprimimos las huídas que tiene disponible
+      <<EXP<<hero.exp<<endl // Imprimimos la experiencia que tiene el héroe
       <<KILLS;
-
-  printKills(hero);
+  printKills(hero); // Imprimimos las kills que ha logrado el héroe
 }
 
 void showMenu(){
@@ -251,8 +252,8 @@ void nameHero(Hero &hero){ // Función para nombrar al héroe
 void setDistribution(Hero &hero){ // Funcion que implementa el ataque y defensa del héroe
   string distribution; // Cadena auxiliar para la distribución
   bool isDistributionIncorrect = false; // Boolean para comprobar si la distribución es correcta
-  float attack = 0;
-  float defense = 0;
+  float attack = 0; // Float para definir el ataque el héroe
+  float defense = 0; // Float para definir la defensa del héroe
 
   do{
     cout<<EAD; // Pedimos la distribución
@@ -276,15 +277,15 @@ bool checkDistribution(string distribution,float &attack,float &defense){ // Dev
     return true;
   }
 
-  string satt; 
-  string sdef; // Cadenas auxiliares para ataque y defensa
+  string satt; // Cadena auxiliar para ataque
+  string sdef; // Cadena auxiliar para defensa
   size_t pos = distribution.find("/"); // Posición del caracter "/" que separa ataque y defensa
 
   satt = distribution.substr(0,pos-1); // Extraemos el ataque
   sdef = distribution.substr(pos+1); // Extraemos la defensa
 
-  int iattack = atoi(satt); 
-  int idefense = atoi(sdef); // Convertimos ataque y defensa a int
+  int iattack = atoi(satt); // Convertimos el ataque a int
+  int idefense = atoi(sdef); // Convertim la defensa a int
 
   if((iattack + idefense) <= 100 && (iattack + idefense) > 0 && iattack > 0 && idefense > 0){ // Comprobamos las restricciones
     return true;
@@ -323,9 +324,9 @@ void printKills(Hero hero){ // Función para imprimir por pantalla los enemigos 
   cout<<"- Axolotl: "<<hero.kills[0]<<endl
       <<"- Troll: "<<hero.kills[1]<<endl
       <<"- Orc: "<<hero.kills[2]<<endl
-      <<"- Hellhound"<<hero.kills[3]<<endl
-      <<"- Dragon"<<hero.kills[4]<<endl
-      <<"- Total"<<hero.kills[0]+hero.kills[1]+hero.kills[2]+hero.kills[3]+hero.kills[4]<<endl;
+      <<"- Hellhound: "<<hero.kills[3]<<endl
+      <<"- Dragon: "<<hero.kills[4]<<endl
+      <<"- Total: "<<hero.kills[0]+hero.kills[1]+hero.kills[2]+hero.kills[3]+hero.kills[4]<<endl;
 }
 
 int main(int argc,char *argv[]){
@@ -363,18 +364,16 @@ int main(int argc,char *argv[]){
             cout<<ERR_CANNOT_RUN_AWAY<<endl; // Informamos de que no ha podido huir del enemigo
         }else if(option == 3){ // Si option == 3 --> Special
           if(hero.special){
-            speAtt = true;
-            fight(hero,enemy,speAtt);
-            speAtt = false;
+            speAtt = true; // Activamos la opción del ataque especial
+            fight(hero,enemy,speAtt); // Llamamos al fight para que luche
+            speAtt = false; // Desactivamos la opción del ataque especial
           }else
             cout<<ERR_SPECIAL_NOT_AVAILABLE<<endl;
         }else if(option == 4){ // Si option == 4 --> Report
           report(hero);
         }else if(option == 'q'){ // Si option == 4 --> Quit
-
+          isOptionIncorrect = false;
         }
-        isOptionIncorrect = false;
-
     }while(isOptionIncorrect);
   }
 }
