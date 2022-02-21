@@ -262,7 +262,13 @@ void nameHero(Hero &hero){
         isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
       }else{ // Le asignamos el nombre al héroe
         isNameIncorrect = false;
-        strcpy(hero.name,sname.c_str());
+        if(sname.length() > KNAME - 1){
+          char auxs[KNAME]; // Cadena auxiliar 
+          strncpy(auxs,sname.c_str(),KNAME-1);
+          auxs[KNAME] = '\0';
+          strcpy(hero.name,auxs);
+        }else
+          strcpy(hero.name,sname.c_str());
       }
   }while(isNameIncorrect);
 }
@@ -447,9 +453,11 @@ int main(int argc,char *argv[]){
           if(hero.special){
             speAtt = true; // Activamos la opción del ataque especial
             fight(hero,enemy,speAtt); // Llamamos al fight para que luche
-            if(enemy.features.hp == 0)
+            if(enemy.features.hp == 0) // Si el enemigo es derrotado con el ataque especial creamos otro nuevo
               enemy = createEnemy();
             speAtt = false; // Desactivamos la opción del ataque especial
+            if(hero.features.hp == 0) // Si el héroe es derrotado termina el juego
+              isOptionIncorrect = false; 
           }else
             cout<<ERR_SPECIAL_NOT_AVAILABLE<<endl;
         }else if(option == '4'){ // Si option == 4 --> Report
