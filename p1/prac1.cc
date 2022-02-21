@@ -31,8 +31,8 @@ const string ENEMY = "[Enemy]"; // Cadena para mostrar un enemigo
 const string BREED = "Breed: "; // Cadena para mostrar la raza de un enemigo
 const string ATTACK = "Attack: "; // Cadena para mostrar el ataque
 const string DEFENSE = "Defense: "; // Cadena para mostrar la defensa
-const string HP = "Health Points: "; // Cadena para mostrar la vida
-const string HITPOINTS = "Hit Points: "; // Cadena para mostrar los hit points
+const string HP = "Health points: "; // Cadena para mostrar la vida
+const string HITPOINTS = "Hit points: "; // Cadena para mostrar los hit points
 const string ENEMYHP = "Enemy health points: "; // Cadena para mostrar la vida del enemigo
 const string HEROHP = "Hero health points: "; // Cadena para mostrar la vida del héroe
 const string ENEMYKILLED = "Enemy killed"; // Cadena para mostrar cuando un enemigo ha muerto
@@ -84,6 +84,7 @@ void fight(Hero &hero,Enemy &enemy,bool speAtt);
 void report(const Hero &hero);
 void showMenu();
 void nameHero(Hero &hero);
+bool checkName(string sname);
 void setDistribution(Hero &hero);
 bool checkDistribution(string distribution,float &attack,float &defense);
 void printEnemy(Enemy enemy);
@@ -155,6 +156,7 @@ void fight(Hero &hero,Enemy &enemy,bool speAtt){
   int attackHero = rollDice()*5; // Guardamos el ataque obtenido por el dado
   if(hero.special && speAtt){ // Si se ha selecionado la opción 3 del menú y el héroe tiene disponible el ataque especial...
     attackHero = attackHero * 3;
+    hero.special = false;
   }
   cout<<ATTACK<<hero.features.attack<<" + "<<attackHero<<endl; // Imprimimos por pantalla el ataque que tendrá el héroe
   attackHero += hero.features.attack; // Guardamos el ataque del héroe para esta batalla
@@ -255,7 +257,7 @@ void nameHero(Hero &hero){
       cout<<EHN; // Pedimos nombre
       getline(cin,sname,'\n'); // Guardamos nombre en la string auxiliar
       
-      if(sname.length() == 0){
+      if(sname.length() == 0 || !checkName(sname)){
         cout<<ERR_WRONG_NAME<<endl; // Emitimos error si el nombre es incorrecto
         isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
       }else{ // Le asignamos el nombre al héroe
@@ -265,7 +267,29 @@ void nameHero(Hero &hero){
   }while(isNameIncorrect);
 }
 
-/* Funcion que implementa el ataque y defensa del héroe
+/* Función que comprueba si el nombre del héroe es correcto
+ * Parámetro: String sname -> Cadena a comprobar
+ * Returns:
+    true: si el nombre es correcto
+    false: si el nombre es erróneo
+ */
+bool checkName(string sname){
+  if(!isalpha(sname[0]))
+    return false;
+  if(sname.length() > 1){
+    for(unsigned i = 1;i < sname.length();i++){
+      if(!isalnum(sname[i])){
+        if(!isspace(sname[i])){
+          return false;
+          break;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+/* Función que implementa el ataque y defensa del héroe
  * Parámetro: Héroe
  */
 void setDistribution(Hero &hero){
@@ -292,7 +316,7 @@ void setDistribution(Hero &hero){
 
 /* Función para guardar la distribución ataque/defensa del héroe
  * Parámetros: Distribución elegida y floats de ataque y defensa.
- * Return: 
+ * Returns: 
     true: en caso de error
     false: cuando está todo correcto
  */
@@ -337,17 +361,17 @@ void printEnemy(Enemy enemy){ //
 
 /* Función que identifica la raza del enemigo y devuelve su nombre
  * Parámetros: Enemy
- * Return: String
+ * Returns: String
  */
 string enemyName(Enemy enemy){
   if(enemy.name == AXOLOTL){
-    return "Ajolote";
+    return "Axolotl";
   }else if(enemy.name == TROLL){
-    return "Trol";
+    return "Troll";
   }else if(enemy.name == ORC){
-    return "Ogro";
+    return "Orc";
   }else if(enemy.name == HELLHOUND){
-    return "Perro del infierno";
+    return "Hellhound";
   }else if(enemy.name == DRAGON){
     return "Dragon";
   }
@@ -423,6 +447,8 @@ int main(int argc,char *argv[]){
           if(hero.special){
             speAtt = true; // Activamos la opción del ataque especial
             fight(hero,enemy,speAtt); // Llamamos al fight para que luche
+            if(enemy.features.hp == 0)
+              enemy = createEnemy();
             speAtt = false; // Desactivamos la opción del ataque especial
           }else
             cout<<ERR_SPECIAL_NOT_AVAILABLE<<endl;
