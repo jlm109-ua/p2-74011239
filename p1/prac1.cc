@@ -262,11 +262,11 @@ void nameHero(Hero &hero){
         isNameIncorrect = true; // La variable Boolean la ponemos como true para que vuelva a repetir el bucle
       }else{ // Le asignamos el nombre al héroe
         isNameIncorrect = false;
-        if(sname.length() > KNAME - 1){
+        if(sname.length() > KNAME - 1){ // Si el nombre que se quiere poner es mayor que KNAME...
           char auxs[KNAME]; // Cadena auxiliar 
-          strncpy(auxs,sname.c_str(),KNAME-1);
-          auxs[KNAME] = '\0';
-          strcpy(hero.name,auxs);
+          strncpy(auxs,sname.c_str(),KNAME-1); // Copiamos 31 elementos del nombre
+          auxs[KNAME] = '\0'; // Ponemos a '\0' el elemento 32 del nombre
+          strcpy(hero.name,auxs); // Nombramos al héroe con este nuevo nombre de 32 elementos
         }else
           strcpy(hero.name,sname.c_str());
       }
@@ -280,11 +280,11 @@ void nameHero(Hero &hero){
     false: si el nombre es erróneo
  */
 bool checkName(string sname){
-  if(!isalpha(sname[0]))
+  if(!isalpha(sname[0])) // Comprobamos que el primer caracter sea alfanumérico
     return false;
   if(sname.length() > 1){
     for(unsigned i = 1;i < sname.length();i++){
-      if(!isalnum(sname[i])){
+      if(!isalnum(sname[i])){ // Comprobamos que no haya caracteres que no sean números, espacios en blanco o alfanuméricos.
         if(!isspace(sname[i])){
           return false;
           break;
