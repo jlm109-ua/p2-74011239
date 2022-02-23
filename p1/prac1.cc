@@ -453,6 +453,7 @@ int main(int argc,char *argv[]){
           if(hero.special){
             speAtt = true; // Activamos la opción del ataque especial
             fight(hero,enemy,speAtt); // Llamamos al fight para que luche
+            canRunAway = true;
             if(enemy.features.hp == 0) // Si el enemigo es derrotado con el ataque especial creamos otro nuevo
               enemy = createEnemy();
             speAtt = false; // Desactivamos la opción del ataque especial
