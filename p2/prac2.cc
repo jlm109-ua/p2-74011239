@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <cctype>
+#include <string.h>
+#include <cstdlib)
 
 using namespace std;
 
@@ -14,6 +16,7 @@ const string EBT = "Enter book title: "; // Cadena para pedir el título del lib
 const string EAUTH = "Enter author(s): "; // Cadena para pedir los autores del libro
 const string EPY = "Enter publication year: "; // Cadena para pedir el año de publicación del libro
 const string EP = "Enter price: "; // Cadena para pedir el precio del libro
+const string EBI = "Enter book id: "; // Cadena para pedir el Id de un libro
 
 
 enum Error {
@@ -171,11 +174,33 @@ void addBook(BookStore &bookStore) {
     }while(wrongData);
 
     b.price = stof(saux); // Convertimos la string a float y lo guardamos en el libro
-
     strcpy(b.slug,createSlug(b.title));
+    b.id = nextId;
+    nextId++;
+
+    bookStore.books.push_back(b);
 }
 
+/* Función para eliminar un libro a partir de su id
+ * Parámetro: bookStore -> Variable que almacena los libros
+ */
 void deleteBook(BookStore &bookStore) {
+    int id = 0;
+    bool bookDeleted = false; // Booleano para comprobar si se ha eliminado algún libro
+    cout << EBI << endl;
+    cin >> id; // Pedimos y guardamos el id del libro
+    
+    for(int i = 0;i < bookStore.books.size();i++){ // Buscamos el libro con el id especificado 
+        if( bookStore.books[i].id == id ){
+            bookStore.books[i].erase(bookStore.books.begin() + i); // Eliminamos el libro
+            bookDeleted = true;
+            break;
+        }
+    }
+
+    if(!bookDeleted){ // Si no está avisamos al usuario y volemos al menú principal
+        cout << error(ERR_ID) << endl;
+    }
 }
 
 void importExportMenu(BookStore &bookStore) {
@@ -226,7 +251,7 @@ string createSlug(string title){
 
     for(int i = 0;i < slug.length;i++){ // Comprobamos los guiones que pueda haber repetidos
         if(slug[i] == '-' && slug[i+1] == '-')
-            // Borrar guión 
+             slug.erase(i,1); // Borra el guión // SI NO FUNCIONA PROBAR A LA INVERSA
     }
 }
 
