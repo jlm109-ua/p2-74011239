@@ -234,6 +234,13 @@ void deleteBook(BookStore &bookStore) {
 }
 
 void importExportMenu(BookStore &bookStore) {
+  cout << "[Import/export options]" << endl
+       << "1- Import from CSV" << endl
+       << "2- Export to CSV" << endl
+       << "3- Load data" << endl
+       << "4- Save data" << endl
+       << "b- Back to main menu" << endl
+       << "Option: ";
 }
 
 void importFromCsv(BookStore &bookStore){
@@ -370,7 +377,27 @@ int main(int argc, char *argv[]) {
         deleteBook(bookStore);
         break;
       case '5':
-        importExportMenu(bookStore);
+        do{
+          importExportMenu(bookStore);
+        switch(option){
+          case '1':
+            importFromCsv(bookStore);
+            break;
+          case '2':
+            exportToCsv(bookStore);
+            break;
+          case '3':
+            loadData(bookStore);
+            break;
+          case '4':
+            saveData(bookStore);
+            break;
+          case 'b':
+            break;
+          default:
+            error(ERR_OPTION);
+        }
+        }while(option != 'b');
         break;
       case 'q':
         break;
