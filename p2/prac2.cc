@@ -379,24 +379,26 @@ int main(int argc, char *argv[]) {
       case '5':
         do{
           importExportMenu(bookStore);
-        switch(option){
-          case '1':
-            importFromCsv(bookStore);
-            break;
-          case '2':
-            exportToCsv(bookStore);
-            break;
-          case '3':
-            loadData(bookStore);
-            break;
-          case '4':
-            saveData(bookStore);
-            break;
-          case 'b':
-            break;
-          default:
-            error(ERR_OPTION);
-        }
+          cin >> option;
+          cin.get();
+          switch(option){
+            case '1':
+              importFromCsv(bookStore);
+              break;
+            case '2':
+              exportToCsv(bookStore);
+              break;
+            case '3':
+              loadData(bookStore);
+              break;
+            case '4':
+              saveData(bookStore);
+              break;
+            case 'b':
+              break;
+            default:
+              error(ERR_OPTION);
+          }
         }while(option != 'b');
         break;
       case 'q':
