@@ -6,7 +6,7 @@
 #include <vector>
 #include <cctype>
 #include <string.h>
-#include <cstdlib)
+#include <cstdlib>
 
 using namespace std;
 
@@ -88,6 +88,22 @@ void error(Error e) {
   }
 }
 
+/* Métodos usados en el programa */
+
+void showMainMenu();
+void showCatalog(const BookStore &bookStore);
+void showExtendedCatalog(const BookStore &bookStore);
+void addBook(BookStore &bookStore);
+void deleteBook(BookStore &bookStore);
+void importExportMenu(BookStore &bookStore);
+void importFromCsv(BookStore &bookStore);
+void exportToCsv(const BookStore &bookStore);
+void loadData(BookStore &bookStore);
+void saveData(const BookStore &bookStore);
+bool checkString(string saux);
+string createSlug(string title);
+bool checkIsNumber(string saux);
+
 void showMainMenu() {
   cout << "[Options]" << endl
        << "1- Show catalog" << endl
@@ -103,8 +119,8 @@ void showMainMenu() {
  * Parámetro: BookStore -> Variable que almacena los books en un vector
  */
 void showCatalog(const BookStore &bookStore) {
-    for(Book b : bookStore.books){ // Para cada libro en books...
-        cout << b.id << ". " << b.title << " (" << b.year << "), " << b.price; // <<endl? PROBAR
+    for(unsigned i=0;i<bookStore.books.size();i++){
+      cout << bookStore.books[i].id << ". " << bookStore.books[i].title << " (" << bookStore.books[i].year << "), " << bookStore.books[i].price << endl;
     }
 }
 
@@ -112,8 +128,8 @@ void showCatalog(const BookStore &bookStore) {
  * Parámetro: BookStore -> Variable que almacena los books en un vector
  */
 void showExtendedCatalog(const BookStore &bookStore) {
-    for(Book b : bookStore.books){
-        cout << '"' << b.title << '"' << "," << '"' << b.author << '"' << "," << b.year << "," << '"' << b.slug << '"' << "," << b.price; // <<endl? PROBAR
+    for(unsigned i=0;i<bookStore.books.size();i++){
+        cout << '"' << bookStore.books[i].title << '"' << "," << '"' << bookStore.books[i].authors << '"' << "," << bookStore.books[i].year << "," << '"' << bookStore.books[i].slug << '"' << "," << bookStore.books[i].price << endl;
     }
 }
 
@@ -126,80 +142,94 @@ void addBook(BookStore &bookStore) {
     bool wrongData = false; // Boleano para repetir los do-while en caso de obtener datos erróneos del usuario
 
     do{
-        cout << EBT << endl;
-        cin >> saux; // Pedimos y guardamos el título en la strin auxiliar
+        cout << EBT;
+        getline(cin,saux,'\n'); // Pedimos y guardamos el título en la strin auxiliar
         if(!checkString(saux) || saux.empty()){ // Hacemos las comprobaciones
-            error(ERR_BOOK_TITLE); // Emitimos error si contiene algún caracter incorrecto
-            wrongData = true; // Ponemos el booleano a true para que repita el do-while
+          error(ERR_BOOK_TITLE); // Emitimos error si contiene algún caracter incorrecto
+          wrongData = true; // Ponemos el booleano a true para que repita el do-while
+        }else{
+          wrongData = false;
         }
     }while(wrongData);
 
-    strcpy(b.title,saux); // Copiamos el contenido de la string auxiliar al título del libro
+    b.title = saux; // Copiamos el contenido de la string auxiliar al título del libro
 
     do{ // Repetimos lo que hicimos con el título, pero esta vez con autores
-        cout << EAUTH << endl;
-        cin >> saux;
+        cout << EAUTH;
+        getline(cin,saux,'\n');
         if(!checkString(saux) || saux.empty()){
-            error(ERR_BOOK_AUTHORS);
-            wrongData = true;
+          error(ERR_BOOK_AUTHORS);
+          wrongData = true;
+        }else{
+          wrongData = false;
         }
     }while(wrongData);
 
-    strcpy(b.authors,saux); // Introducimos los autores al libro
+    b.authors = saux; // Introducimos los autores al libro
 
     do{ // Repetimos lo que hicimos con el título, pero esta vez con la fecha de publicación
-        cout << EPY << endl;
+        cout << EPY;
         cin >> saux;
-        if(!isdigit(saux) || saux.empty()){ // Si no es un número o la cadena está vacía...
+        cin.get();
+        if(!checkIsNumber(saux) || saux.empty()){ // Si no es un número o la cadena está vacía...
             error(ERR_BOOK_DATE);
             wrongData = true;
-        }else if(isdigit(saux)){ // Si es un número...
-            if(stoi(saux)<1440 || stoi(saux)>2022) // Comprobamos que las fechas sean correctas
-                wrongData = true;
+        }else if(checkIsNumber(saux)){ // Si es un número...
+            if(stoi(saux)<1440 || stoi(saux)>2022){ // Comprobamos que las fechas sean correctas
+              error(ERR_BOOK_DATE);
+              wrongData = true;
+            }else{
+              wrongData = false;
+            }
         }
     }while(wrongData);
 
     b.year = stoi(saux); // Convertimos la string a int y lo guardamos en el libro
 
     do{ // Repetimos lo que hicimos con la fecha de publicación, pero esta vez con el precio
-        cout << EP << endl;
+        cout << EP;
         cin >> saux;
-        if(!isdigit(saux) || saux.empty()){ // Si no es un número o la cadena está vacía...
+        cin.get();
+        if(!checkIsNumber(saux) || saux.empty()){ // Si no es un número o la cadena está vacía...
             error(ERR_BOOK_PRICE);
             wrongData = true;
-        }else if(isdigit(saux)){ // Si es un número...
-            if(stof(saux)<= 0) // Comprobamos que el precio sea correcto
+        }else if(checkIsNumber(saux)){ // Si es un número...
+            if(stof(saux)<= 0){ // Comprobamos que el precio sea correcto
+                error(ERR_BOOK_PRICE);
                 wrongData = true;
+            }else{
+              wrongData = false;
+            }
         }
     }while(wrongData);
 
     b.price = stof(saux); // Convertimos la string a float y lo guardamos en el libro
-    strcpy(b.slug,createSlug(b.title));
-    b.id = nextId;
-    nextId++;
+    b.slug = createSlug(b.title);
+    b.id = bookStore.nextId;
+    bookStore.nextId++; // Aumentamos el Id general para los siguientes libros
 
-    bookStore.books.push_back(b);
+    bookStore.books.push_back(b); // Añadimos el libro a la colección
 }
 
 /* Función para eliminar un libro a partir de su id
  * Parámetro: bookStore -> Variable que almacena los libros
  */
 void deleteBook(BookStore &bookStore) {
-    int id = 0;
+    unsigned id = 0;
     bool bookDeleted = false; // Booleano para comprobar si se ha eliminado algún libro
-    cout << EBI << endl;
+    cout << EBI;
     cin >> id; // Pedimos y guardamos el id del libro
     
-    for(int i = 0;i < bookStore.books.size();i++){ // Buscamos el libro con el id especificado 
+    for(unsigned i = 0;i < bookStore.books.size();i++){ // Buscamos el libro con el id especificado 
         if( bookStore.books[i].id == id ){
-            bookStore.books[i].erase(bookStore.books.begin() + i); // Eliminamos el libro
+            bookStore.books.erase(bookStore.books.begin() + i); // Eliminamos el libro
             bookDeleted = true;
             break;
         }
     }
 
     if(!bookDeleted){ // Si no está avisamos al usuario y volemos al menú principal
-        cout << error(ERR_ID) << endl;
+        error(ERR_ID);
     }
 }
 
@@ -225,7 +255,7 @@ void saveData(const BookStore &bookStore){
     - false: Si hay algún caracter erróneo
  */
 bool checkString(string saux){
-    for(int i = 0;i < saux.length();i++){
+    for(unsigned i = 0;i < saux.length();i++){
         if(isalnum(saux[i]) || isblank(saux[i]) || saux[i] == ':' || saux[i] == '-' || saux[i] == ','){
         }else{
             return false;
@@ -240,19 +270,77 @@ bool checkString(string saux){
 string createSlug(string title){
     string slug = "";
 
-    for(char c : title){ // Para cada caracter de la string...
-        if(isalpha(c)) // Si es una letra lo pasamos a minúscula
-            slug += tolower(c);
-        else if(isdigit(c)) // Si es un número lo añadimos directamente
-            slug += c;
+    for(unsigned i = 0;i < title.size();i++){
+      if(isalpha(title[i])) // Si es una letra lo pasamos a minúscula
+            slug += tolower(title[i]);
+        else if(isdigit(title[i])) // Si es un número lo añadimos directamente
+            slug += title[i];
         else // Si no es ni número ni letra añadimos un guión
             slug += '-';
     }
 
-    for(int i = 0;i < slug.length;i++){ // Comprobamos los guiones que pueda haber repetidos
-        if(slug[i] == '-' && slug[i+1] == '-')
+    for(int i = slug.length();i >= 0 ;i--){ // Comprobamos los guiones que pueda haber repetidos
+        if(slug[i] == '-' && slug[i-1] == '-')
              slug.erase(i,1); // Borra el guión // SI NO FUNCIONA PROBAR A LA INVERSA
     }
+    slug.push_back('\0');
+
+    return slug;
+}
+
+/* Función que comprueba si la cadena pasada como parámetro es un número tanto int como float
+ * Parámetro: String -> Cadena a comprobar
+ * Returns:
+   - true: si es un número
+   - false: en cualquier otro caso
+ */
+bool checkIsNumber(string saux){
+  for(unsigned i = 0;i < saux.length();i++){
+    if(!isdigit(saux[i])){
+      if(saux[i]!='.'){
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/* Función para manejar los argumentos del programa
+ * Parámetros:
+   - Int -> Número de argumentos
+   - Char* -> Array con los argumentos 
+ */
+void checkArgs(int argc,char *argv[]){
+  if(argc%2!=0){
+    if(argc>5){
+      error(ERR_ARGS);
+    }else{
+      if(argc==3){
+        if(strcmp(argv[1],"-l")==0){
+          // Terminar
+        }else if(strcmp(argv[1],"-i")==0){
+          // Terminar
+        }else{
+          error(ERR_ARGS);
+        }
+      }else if(argc==5){
+        if(strcmp(argv[1],"-l")==0){
+          // Terminar
+        }else if(strcmp(argv[1],"-i")==0){
+          // Terminar
+        }else if(strcmp(argv[3],"-l")==0){
+          // Terminar
+        }else if(strcmp(argv[3],"-i")==0){
+          // Terminar
+        }else{
+          error(ERR_ARGS);
+        }
+      }
+    }
+  }else if(argc!=1){
+    error(ERR_ARGS);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -260,6 +348,8 @@ int main(int argc, char *argv[]) {
   bookStore.name = "My Book Store";
   bookStore.nextId = 1;
 
+  checkArgs(argc,argv);
+    
   char option;
   do {
     showMainMenu();
