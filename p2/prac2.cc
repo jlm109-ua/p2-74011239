@@ -105,6 +105,8 @@ void saveData(const BookStore &bookStore);
 bool checkString(string saux);
 string createSlug(string title);
 bool checkIsNumber(string saux);
+void importCenter(BookStore &bookStore, string filename);
+void checkArgs(int argc,char *argv[],BookStore &bookStore);
 
 void showMainMenu() {
   cout << "[Options]" << endl
@@ -252,89 +254,11 @@ void importExportMenu(BookStore &bookStore) {
  * Parámetro: bookStore -> Variable donde almacenamos los libros
  */
 void importFromCsv(BookStore &bookStore){
-  string filename;
+  string fname;
   cout << EFN;
-  getline(cin,filename,'\n');
+  getline(cin,fname,'\n');
 
-  ifstream ifs(filename);
-
-  if(ifs.is_open()){ // Si el fichero se ha podido abrir...
-    string fileline; // String auxiliar para procesar las líneas que contiene el fichero
-    while(getline(ifs,fileline)){ // Mientras haya líneas en el fichero...
-      bool isCorrect = true; // Variable para comprobar que todos los campos del libro son correctos 
-      if(fileline.length()==0){ // Si el fichero está vacío...
-        isCorrect = false;
-      }
-      Book b;
-      string aux; // Variable auxiliar para hacer las comprobaciones
-      
-      if(isCorrect){
-          fileline = fileline.substr(1); // Quitamos el primer '"'
-        size_t pos = fileline.find('"'); // Buscamos el segundo '"'
-        aux = fileline.substr(0,pos); // Cogemos el título del libro
-        if(!checkString(aux) || aux.empty()){ // Comprobamos el título
-          error(ERR_BOOK_TITLE);
-          isCorrect = false;
-        }else{
-          b.title = aux;
-        }
-
-        if(isCorrect){
-          fileline = fileline.substr(pos+3); // Quitamos la parte del título de la cadena y los caracteres ',"' para acceder directamente al/los autor/es
-          pos = fileline.find('"');
-          aux = fileline.substr(0,pos); // Cogemos al/los autor/es
-          if(!checkString(aux) || aux.empty()){ // Comprobamos el los autores
-            error(ERR_BOOK_AUTHORS);
-            isCorrect = false;
-          }else{
-            b.authors = aux;
-          }
-
-          if(isCorrect){
-            fileline = fileline.substr(pos+2); // Quitamos la parte de los autores
-            aux = fileline.substr(0,4); // Cogemos el año del libro
-            if(!checkIsNumber(aux)){ // Si no es un número...
-              error(ERR_BOOK_DATE);
-              isCorrect = false;
-          }else if(checkIsNumber(aux)){
-              if(stoi(aux)<1440 || stoi(aux)>2022){ // Comprobamos que las fechas sean correctas
-                error(ERR_BOOK_DATE);
-                isCorrect = false;
-              }else{
-                b.year = stoi(aux);
-              }
-          }
-
-            if(isCorrect){
-              fileline = fileline.substr(6); // Quitamos la parte del año
-              pos = fileline.find('"');
-              b.slug = fileline.substr(0,pos); // Cogemos el slug del libro
-              fileline = fileline.substr(pos+2); // Quitamos la parte del slug
-              aux = fileline; // Cogemos el precio del libro
-              if(!checkIsNumber(aux)){ // Si no es un número...
-                error(ERR_BOOK_PRICE);
-                isCorrect = false;
-              }else if(checkIsNumber(aux)){
-                if(stof(aux)<= 0){ // Comprobamos que el precio sea correcto
-                  error(ERR_BOOK_PRICE);
-                  isCorrect = false;
-                }else{
-                  b.price = stof(aux);
-                  b.id = bookStore.nextId;
-                  bookStore.nextId++;
-                  bookStore.books.push_back(b); // Añadimos el libro
-                }
-              }
-            }
-          }  
-        }
-      }
-    }
-  
-    ifs.close();
-  }else{
-    error(ERR_FILE);
-  }
+  importCenter(bookStore,fname);
 }
 
 /* Función para exportar los libros a texto.
@@ -421,12 +345,99 @@ bool checkIsNumber(string saux){
   return true;
 }
 
+/* Función para importar desde un fichero.
+ * Parámetros: 
+   - filename -> Nombre del fichero
+   - bookStore -> Variable para almacenar los libros
+ */
+void importCenter(BookStore &bookStore, string filename){
+  ifstream ifs(filename);
+
+  if(ifs.is_open()){ // Si el fichero se ha podido abrir...
+    string fileline; // String auxiliar para procesar las líneas que contiene el fichero
+    while(getline(ifs,fileline)){ // Mientras haya líneas en el fichero...
+      bool isCorrect = true; // Variable para comprobar que todos los campos del libro son correctos 
+      if(fileline.length()==0){ // Si el fichero está vacío...
+        isCorrect = false;
+      }
+      Book b;
+      string aux; // Variable auxiliar para hacer las comprobaciones
+      
+      if(isCorrect){
+          fileline = fileline.substr(1); // Quitamos el primer '"'
+        size_t pos = fileline.find('"'); // Buscamos el segundo '"'
+        aux = fileline.substr(0,pos); // Cogemos el título del libro
+        if(!checkString(aux) || aux.empty()){ // Comprobamos el título
+          error(ERR_BOOK_TITLE);
+          isCorrect = false;
+        }else{
+          b.title = aux;
+        }
+
+        if(isCorrect){
+          fileline = fileline.substr(pos+3); // Quitamos la parte del título de la cadena y los caracteres ',"' para acceder directamente al/los autor/es
+          pos = fileline.find('"');
+          aux = fileline.substr(0,pos); // Cogemos al/los autor/es
+          if(!checkString(aux) || aux.empty()){ // Comprobamos el los autores
+            error(ERR_BOOK_AUTHORS);
+            isCorrect = false;
+          }else{
+            b.authors = aux;
+          }
+
+          if(isCorrect){
+            fileline = fileline.substr(pos+2); // Quitamos la parte de los autores
+            aux = fileline.substr(0,4); // Cogemos el año del libro
+            if(!checkIsNumber(aux)){ // Si no es un número...
+              error(ERR_BOOK_DATE);
+              isCorrect = false;
+          }else if(checkIsNumber(aux)){
+              if(stoi(aux)<1440 || stoi(aux)>2022){ // Comprobamos que las fechas sean correctas
+                error(ERR_BOOK_DATE);
+                isCorrect = false;
+              }else{
+                b.year = stoi(aux);
+              }
+          }
+
+            if(isCorrect){
+              fileline = fileline.substr(6); // Quitamos la parte del año
+              pos = fileline.find(",");
+              b.slug = fileline.substr(1,pos-2); // Cogemos el slug del libro
+              fileline = fileline.substr(pos+1); // Quitamos la parte del slug
+              aux = fileline; // Cogemos el precio del libro
+              if(!checkIsNumber(aux)){ // Si no es un número...
+                error(ERR_BOOK_PRICE);
+                isCorrect = false;
+              }else if(checkIsNumber(aux)){
+                if(stof(aux)<= 0){ // Comprobamos que el precio sea correcto
+                  error(ERR_BOOK_PRICE);
+                  isCorrect = false;
+                }else{
+                  b.price = stof(aux);
+                  b.id = bookStore.nextId;
+                  bookStore.nextId++;
+                  bookStore.books.push_back(b); // Añadimos el libro
+                }
+              }
+            }
+          }  
+        }
+      }
+    }
+  
+    ifs.close();
+  }else{
+    error(ERR_FILE);
+  }
+}
+
 /* Función para manejar los argumentos del programa
  * Parámetros:
    - Int -> Número de argumentos
    - Char* -> Array con los argumentos 
  */
-void checkArgs(int argc,char *argv[]){
+void checkArgs(int argc,char *argv[],BookStore &bookStore){
   if(argc%2!=0){
     if(argc>5){
       error(ERR_ARGS);
@@ -435,19 +446,20 @@ void checkArgs(int argc,char *argv[]){
         if(strcmp(argv[1],"-l")==0){
           // Terminar
         }else if(strcmp(argv[1],"-i")==0){
-          // Terminar
+          string filename = argv[2];
+          importCenter(bookStore,filename);
         }else{
           error(ERR_ARGS);
         }
       }else if(argc==5){
-        if(strcmp(argv[1],"-l")==0){
-          // Terminar
-        }else if(strcmp(argv[1],"-i")==0){
-          // Terminar
-        }else if(strcmp(argv[3],"-l")==0){
-          // Terminar
-        }else if(strcmp(argv[3],"-i")==0){
-          // Terminar
+        if((strcmp(argv[1],"-l")==0) && (strcmp(argv[3],"-i")==0)){
+          // Seguir con la parte binaria
+          string filename = argv[4];
+          importCenter(bookStore,filename);
+        }else if((strcmp(argv[1],"-i")==0) && (strcmp(argv[3],"-l")==0)){
+          // Seguir con la parte binaria
+          string filename = argv[2];
+          importCenter(bookStore,filename);
         }else{
           error(ERR_ARGS);
         }
@@ -463,7 +475,7 @@ int main(int argc, char *argv[]) {
   bookStore.name = "My Book Store";
   bookStore.nextId = 1;
 
-  checkArgs(argc,argv);
+  checkArgs(argc,argv,bookStore);
     
   char option;
   do {
