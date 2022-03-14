@@ -7,6 +7,7 @@
 #include <cctype>
 #include <string.h>
 #include <cstdlib>
+#include <fstream>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ const string EAUTH = "Enter author(s): "; // Cadena para pedir los autores del l
 const string EPY = "Enter publication year: "; // Cadena para pedir el año de publicación del libro
 const string EP = "Enter price: "; // Cadena para pedir el precio del libro
 const string EBI = "Enter book id: "; // Cadena para pedir el Id de un libro
+const string EFN = "Enter filename: "; // Cadena para pedir el nombre del fichero
 
 
 enum Error {
@@ -233,6 +235,9 @@ void deleteBook(BookStore &bookStore) {
     }
 }
 
+/* Función para imprimir el menú "Import/export"
+ * Parámetro: bookStore -> Variable donde almacenamos los libros
+ */
 void importExportMenu(BookStore &bookStore) {
   cout << "[Import/export options]" << endl
        << "1- Import from CSV" << endl
@@ -243,7 +248,87 @@ void importExportMenu(BookStore &bookStore) {
        << "Option: ";
 }
 
+/* Función para importar libros desde Csv
+ * Parámetro: bookStore -> Variable donde almacenamos los libros
+ */
 void importFromCsv(BookStore &bookStore){
+  string filename;
+  cout << EFN;
+  getline(cin,filename,'\n');
+
+  ifstream ifs(filename);
+
+  if(ifs.is_open()){ // Si el fichero se ha podido abrir...
+    string fileline; // String auxiliar para procesar las líneas que contiene el fichero
+    while(getline(ifs,fileline)){ // Mientras haya líneas en el fichero...
+      Book b;
+      string aux; // Variable auxiliar para hacer las comprobaciones
+      bool isCorrect = true; // Variable para comprobar que todos los campos del libro son correctos 
+      
+      fileline = fileline.substr(1); // Quitamos el primer '"'
+      size_t pos = fileline.find('"'); // Buscamos el segundo '"'
+      aux = fileline.substr(0,pos-1); // Cogemos el título del libro
+      if(!checkString(aux) || aux.empty()){ // Comprobamos el título
+        error(ERR_BOOK_TITLE);
+        isCorrect = false;
+      }else{
+        b.title = aux;
+      }
+
+      if(isCorrect){
+        fileline = fileline.substr(pos+3); // Quitamos la parte del título de la cadena y los caracteres ',"' para acceder directamente al/los autor/es
+        pos = fileline.find('"');
+        aux = fileline.substr(0,pos-1); // Cogemos al/los autor/es
+        if(!checkString(aux) || aux.empty()){ // Comprobamos el los autores
+          error(ERR_BOOK_AUTHORS);
+          isCorrect = false;
+        }else{
+          b.authors = aux;
+        }
+
+        if(isCorrect){
+          fileline = fileline.substr(pos+2); // Quitamos la parte de los autores
+          aux = fileline.substr(0,4); // Cogemos el año del libro
+          if(!checkIsNumber(aux)){ // Si no es un número...
+            error(ERR_BOOK_DATE);
+            isCorrect = false;
+        }else if(checkIsNumber(saux)){
+            if(stoi(aux)<1440 || stoi(aux)>2022){ // Comprobamos que las fechas sean correctas
+              error(ERR_BOOK_DATE);
+              isCorrect = false;
+            }else{
+              b.price = stoi(aux);
+            }
+        }
+
+          if(isCorrect){
+            fileline = fileline.substr(7); // Quitamos la parte del año
+            pos = fileline.find('"');
+            b.slug = fileline.substr(0,pos-1); // Cogemos el slug del libro
+            fileline = fileline.substr(pos+2); // Quitamos la parte del slug
+            aux = fileline; // Cogemos el precio del libro
+            if(!checkIsNumber(aux)){ // Si no es un número...
+              error(ERR_BOOK_PRICE);
+              isCorrect = false;
+            }else if(checkIsNumber(saux)){
+              if(stof(aux)<= 0){ // Comprobamos que el precio sea correcto
+                error(ERR_BOOK_PRICE);
+                isCorrect = false;
+              }else{
+                b.price = stof(aux);
+                bookStore.books.push_back(b); // Añadimos el libro
+              }
+            }
+          }
+        }  
+      }
+    }
+  
+    ifs.close();
+  }else{
+    error(ERR_FILE);
+  }
+
 }
 
 void exportToCsv(const BookStore &bookStore){
