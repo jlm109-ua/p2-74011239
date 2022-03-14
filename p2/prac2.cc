@@ -261,66 +261,73 @@ void importFromCsv(BookStore &bookStore){
   if(ifs.is_open()){ // Si el fichero se ha podido abrir...
     string fileline; // String auxiliar para procesar las líneas que contiene el fichero
     while(getline(ifs,fileline)){ // Mientras haya líneas en el fichero...
+      bool isCorrect = true; // Variable para comprobar que todos los campos del libro son correctos 
+      if(fileline.length()==0){ // Si el fichero está vacío...
+        isCorrect = false;
+      }
       Book b;
       string aux; // Variable auxiliar para hacer las comprobaciones
-      bool isCorrect = true; // Variable para comprobar que todos los campos del libro son correctos 
       
-      fileline = fileline.substr(1); // Quitamos el primer '"'
-      size_t pos = fileline.find('"'); // Buscamos el segundo '"'
-      aux = fileline.substr(0,pos-1); // Cogemos el título del libro
-      if(!checkString(aux) || aux.empty()){ // Comprobamos el título
-        error(ERR_BOOK_TITLE);
-        isCorrect = false;
-      }else{
-        b.title = aux;
-      }
-
       if(isCorrect){
-        fileline = fileline.substr(pos+3); // Quitamos la parte del título de la cadena y los caracteres ',"' para acceder directamente al/los autor/es
-        pos = fileline.find('"');
-        aux = fileline.substr(0,pos-1); // Cogemos al/los autor/es
-        if(!checkString(aux) || aux.empty()){ // Comprobamos el los autores
-          error(ERR_BOOK_AUTHORS);
+          fileline = fileline.substr(1); // Quitamos el primer '"'
+        size_t pos = fileline.find('"'); // Buscamos el segundo '"'
+        aux = fileline.substr(0,pos); // Cogemos el título del libro
+        if(!checkString(aux) || aux.empty()){ // Comprobamos el título
+          error(ERR_BOOK_TITLE);
           isCorrect = false;
         }else{
-          b.authors = aux;
+          b.title = aux;
         }
 
         if(isCorrect){
-          fileline = fileline.substr(pos+2); // Quitamos la parte de los autores
-          aux = fileline.substr(0,4); // Cogemos el año del libro
-          if(!checkIsNumber(aux)){ // Si no es un número...
-            error(ERR_BOOK_DATE);
+          fileline = fileline.substr(pos+3); // Quitamos la parte del título de la cadena y los caracteres ',"' para acceder directamente al/los autor/es
+          pos = fileline.find('"');
+          aux = fileline.substr(0,pos); // Cogemos al/los autor/es
+          if(!checkString(aux) || aux.empty()){ // Comprobamos el los autores
+            error(ERR_BOOK_AUTHORS);
             isCorrect = false;
-        }else if(checkIsNumber(saux)){
-            if(stoi(aux)<1440 || stoi(aux)>2022){ // Comprobamos que las fechas sean correctas
-              error(ERR_BOOK_DATE);
-              isCorrect = false;
-            }else{
-              b.price = stoi(aux);
-            }
-        }
+          }else{
+            b.authors = aux;
+          }
 
           if(isCorrect){
-            fileline = fileline.substr(7); // Quitamos la parte del año
-            pos = fileline.find('"');
-            b.slug = fileline.substr(0,pos-1); // Cogemos el slug del libro
-            fileline = fileline.substr(pos+2); // Quitamos la parte del slug
-            aux = fileline; // Cogemos el precio del libro
+            fileline = fileline.substr(pos+2); // Quitamos la parte de los autores
+            aux = fileline.substr(0,4); // Cogemos el año del libro
             if(!checkIsNumber(aux)){ // Si no es un número...
-              error(ERR_BOOK_PRICE);
+              error(ERR_BOOK_DATE);
               isCorrect = false;
-            }else if(checkIsNumber(saux)){
-              if(stof(aux)<= 0){ // Comprobamos que el precio sea correcto
-                error(ERR_BOOK_PRICE);
+          }else if(checkIsNumber(aux)){
+              if(stoi(aux)<1440 || stoi(aux)>2022){ // Comprobamos que las fechas sean correctas
+                error(ERR_BOOK_DATE);
                 isCorrect = false;
               }else{
-                b.price = stof(aux);
-                bookStore.books.push_back(b); // Añadimos el libro
+                b.year = stoi(aux);
+              }
+          }
+
+            if(isCorrect){
+              fileline = fileline.substr(6); // Quitamos la parte del año
+              pos = fileline.find('"');
+              b.slug = fileline.substr(0,pos); // Cogemos el slug del libro
+              fileline = fileline.substr(pos+2); // Quitamos la parte del slug
+              aux = fileline; // Cogemos el precio del libro
+              if(!checkIsNumber(aux)){ // Si no es un número...
+                error(ERR_BOOK_PRICE);
+                isCorrect = false;
+              }else if(checkIsNumber(aux)){
+                if(stof(aux)<= 0){ // Comprobamos que el precio sea correcto
+                  error(ERR_BOOK_PRICE);
+                  isCorrect = false;
+                }else{
+                  b.price = stof(aux);
+                  b.id = bookStore.nextId;
+                  bookStore.nextId++;
+                  bookStore.books.push_back(b); // Añadimos el libro
+                }
               }
             }
-          }
-        }  
+          }  
+        }
       }
     }
   
@@ -328,10 +335,26 @@ void importFromCsv(BookStore &bookStore){
   }else{
     error(ERR_FILE);
   }
-
 }
 
+/* Función para exportar los libros a texto.
+ * Parámetro: bookStore -> Variable que contiene los libros a almacenar
+ */
 void exportToCsv(const BookStore &bookStore){
+  string filename; // Cadena para almacenar el nombre del fichero
+  cout << EFN;
+  getline(cin,filename,'\n');
+  ofstream ofs(filename);
+
+  if(ofs.is_open()){
+    for(Book b : bookStore.books){ // Imprimimos cada libro almacenado
+      ofs << '"' << b.title << '"' << "," << '"' << b.authors << '"' << "," << b.year << '"' << "," << '"' << b.slug << '"' << "," << b.price << endl;
+    }
+
+    ofs.close();
+  }else{
+    error(ERR_FILE);
+  }
 }
 
 void loadData(BookStore &bookStore){
