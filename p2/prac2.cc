@@ -19,7 +19,7 @@ const string EPY = "Enter publication year: "; // Cadena para pedir el año de p
 const string EP = "Enter price: "; // Cadena para pedir el precio del libro
 const string EBI = "Enter book id: "; // Cadena para pedir el Id de un libro
 const string EFN = "Enter filename: "; // Cadena para pedir el nombre del fichero
-
+const string ERASE_DATA_WARNING = "All data will be erased, do you want to continue (Y/N)?: "; // Cadena para avisar de que todos los datos serán eliminados
 
 enum Error {
   ERR_OPTION,
@@ -106,6 +106,8 @@ bool checkString(string saux);
 string createSlug(string title);
 bool checkIsNumber(string saux);
 void importCenter(BookStore &bookStore, string filename);
+void loadCenter(BookStore &bookStore,string filename);
+BinBook convertBookToBin(Book &b);
 void checkArgs(int argc,char *argv[],BookStore &bookStore);
 
 void showMainMenu() {
@@ -254,11 +256,11 @@ void importExportMenu(BookStore &bookStore) {
  * Parámetro: bookStore -> Variable donde almacenamos los libros
  */
 void importFromCsv(BookStore &bookStore){
-  string fname;
+  string filename;
   cout << EFN;
-  getline(cin,fname,'\n');
+  getline(cin,filename,'\n');
 
-  importCenter(bookStore,fname);
+  importCenter(bookStore,filename);
 }
 
 /* Función para exportar los libros a texto.
@@ -281,10 +283,64 @@ void exportToCsv(const BookStore &bookStore){
   }
 }
 
+/* Función para cargar los datos en binario.
+ * Parámetro: bookStore -> Variable para almacenar los datos.
+ */
 void loadData(BookStore &bookStore){
+  char opt;
+  
+  do{
+    cout << ERASE_DATA_WARNING;
+    cin >> opt;
+    cin.get();
+  }while((opt!='y') && (opt!='Y') && (opt!='n') && (opt!='N')); // Preguntamos hasta que el usuario confirme o decline el borrado de datos
+
+  if(opt=='y' || opt=='Y'){
+    bookStore.name = "";
+    bookStore.nextId = 0; 
+    bookStore.books.clear(); // Eliminamos los libros almacenados y limpiamos la variable bookStore
+    
+    string filename;
+    cout << EFN;
+    getline(cin,filename,'\n');
+
+    loadCenter(bookStore,filename);
+  }
 }
 
+/* Función para guardar los datos en binario.
+ * Parámetro: bookStore -> Variable que contiene los datos a almacenar.
+ */
 void saveData(const BookStore &bookStore){
+  string filename;
+  cout << EFN;
+  getline(cin,filename,'\n');
+
+  ofstream ofbs(filename,ios::binary); // Abrimos el archivo en binario
+
+  if(ofbs.is_open()){
+    BinBookStore binBS;
+
+    if(bookStore.name.length()>49){ // Si el nombre del BookStore es mayor de 49 caracteres...
+      strncpy(binBS.name,bookStore.name.c_str(),49); // ...copiamos los primeros 49...
+      binBS.name[49] = '\0'; // ...y añadimos al final el '\0' para terminar la cadena.
+    }else{
+      strcpy(binBS.name,bookStore.name.c_str());
+    }
+
+    binBS.nextId = bookStore.nextId;
+
+    ofbs.write((const char *)&binBS,sizeof(BinBookStore));
+
+    for(Book b : bookStore.books){ // Para cada libro...
+      BinBook binB = convertBookToBin(b); // Convertimos el libro
+      ofbs.write((const char *)&binB,sizeof(BinBook)); // Escribimos el libro en el fichero binario
+    }
+
+    ofbs.close(); // Cerramos el archivo
+  }else{
+    error(ERR_FILE);
+  }
 }
 
 /* Función auxiliar que comprueba todos los caracteres del título de un libro
@@ -320,7 +376,7 @@ string createSlug(string title){
 
     for(int i = slug.length();i >= 0 ;i--){ // Comprobamos los guiones que pueda haber repetidos
         if(slug[i] == '-' && slug[i-1] == '-')
-             slug.erase(i,1); // Borra el guión // SI NO FUNCIONA PROBAR A LA INVERSA
+             slug.erase(i,1); // Borra el guión
     }
     slug.push_back('\0');
 
@@ -403,7 +459,7 @@ void importCenter(BookStore &bookStore, string filename){
             if(isCorrect){
               fileline = fileline.substr(6); // Quitamos la parte del año
               pos = fileline.find(",");
-              b.slug = fileline.substr(1,pos-2); // Cogemos el slug del libro
+              b.slug = fileline.substr(0,pos-1); // Cogemos el slug del libro
               fileline = fileline.substr(pos+1); // Quitamos la parte del slug
               aux = fileline; // Cogemos el precio del libro
               if(!checkIsNumber(aux)){ // Si no es un número...
@@ -432,33 +488,109 @@ void importCenter(BookStore &bookStore, string filename){
   }
 }
 
+/* Función exclusivamente dedicada a leer datos en binario.
+ * Parámetros:
+   - bookStore -> Variable que contiene los datos.
+   - filename -> String con el nombre del fichero al que queremos exportar los datos.
+ */
+void loadCenter(BookStore &bookStore,string filename){
+  ifstream ifbs(filename,ios::binary);
+  BinBookStore binBS;
+
+  if(ifbs.is_open()){
+    ifbs.read((char *)&binBS,sizeof(BinBookStore)); // Leemos la BinBookStore y copiamos sus componentes a una BookStore
+    bookStore.name = binBS.name; 
+    bookStore.nextId = binBS.nextId;
+    
+    BinBook binB;
+    while(ifbs.read((char *)&binB,sizeof(BinBook))){ // Mientras haya BinBooks los vamos copiando a Books y añadiendo a la librería
+      Book b;
+
+      b.title = binB.title;
+      b.year = binB.year;
+      b.authors = binB.authors;
+      b.slug = binB.slug;
+      b.price = binB.price;
+      b.id = binB.id;
+
+      bookStore.books.push_back(b);
+    }
+
+    ifbs.close();
+  }else{
+    error(ERR_FILE);
+  }
+}
+
+/* Función para convertir Books a BinBooks
+ * Parámetro: b -> Libro a convertir
+ */
+BinBook convertBookToBin(Book &b){
+  BinBook binB;
+  
+  binB.id = b.id; 
+
+  if(b.title.length()>49){
+    strncpy(binB.title,b.title.c_str(),49); // Copiamos el atributo título si es mayor de 50 caracteres 
+    binB.title[49]='\0'; // Insertamos el fin de la cadena
+  }else{
+    strcpy(binB.title,b.title.c_str()); 
+  }
+  
+  if(b.authors.length()>49){
+    strncpy(binB.authors,b.authors.c_str(),49); // Copiamos el atributo autores si es mayor de 50 caracteres 
+    binB.authors[49]='\0'; // Insertamos el fin de la cadena
+  }else{
+    strcpy(binB.authors,b.authors.c_str());
+  }
+
+  binB.year = b.year;
+  
+  if(b.slug.length()>49){
+    strncpy(binB.slug,b.slug.c_str(),49); // Copiamos el atributo slug si es mayor de 50 caracteres 
+    binB.slug[49]='\0'; // Insertamos el fin de la cadena
+  }else{
+    strcpy(binB.slug,b.slug.c_str());
+  }
+
+  binB.price = b.price;
+
+  return binB;
+}
+
 /* Función para manejar los argumentos del programa
  * Parámetros:
    - Int -> Número de argumentos
    - Char* -> Array con los argumentos 
  */
 void checkArgs(int argc,char *argv[],BookStore &bookStore){
+  string filename;
+
   if(argc%2!=0){
     if(argc>5){
       error(ERR_ARGS);
     }else{
       if(argc==3){
         if(strcmp(argv[1],"-l")==0){
-          // Terminar
+          filename = argv[2];
+          cout << "entra";
+          loadCenter(bookStore,filename);
         }else if(strcmp(argv[1],"-i")==0){
-          string filename = argv[2];
+          filename = argv[2];
           importCenter(bookStore,filename);
         }else{
           error(ERR_ARGS);
         }
       }else if(argc==5){
         if((strcmp(argv[1],"-l")==0) && (strcmp(argv[3],"-i")==0)){
-          // Seguir con la parte binaria
-          string filename = argv[4];
+          filename = argv[2];
+          loadCenter(bookStore,filename);
+          filename = argv[4];
           importCenter(bookStore,filename);
         }else if((strcmp(argv[1],"-i")==0) && (strcmp(argv[3],"-l")==0)){
-          // Seguir con la parte binaria
-          string filename = argv[2];
+          filename = argv[4];
+          loadCenter(bookStore,filename);
+          filename = argv[2];
           importCenter(bookStore,filename);
         }else{
           error(ERR_ARGS);
