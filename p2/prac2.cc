@@ -274,7 +274,7 @@ void exportToCsv(const BookStore &bookStore){
 
   if(ofs.is_open()){
     for(Book b : bookStore.books){ // Imprimimos cada libro almacenado
-      ofs << '"' << b.title << '"' << "," << '"' << b.authors << '"' << "," << b.year << '"' << "," << '"' << b.slug << '"' << "," << b.price << endl;
+      ofs << '"' << b.title << '"' << "," << '"' << b.authors << '"' << "," << b.year << "," << '"' << b.slug << '"' << "," << b.price << endl;
     }
 
     ofs.close();
@@ -378,7 +378,6 @@ string createSlug(string title){
         if(slug[i] == '-' && slug[i-1] == '-')
              slug.erase(i,1); // Borra el guión
     }
-    slug.push_back('\0');
 
     return slug;
 }
@@ -573,7 +572,7 @@ void checkArgs(int argc,char *argv[],BookStore &bookStore){
       if(argc==3){
         if(strcmp(argv[1],"-l")==0){
           filename = argv[2];
-          cout << "entra";
+          cout << "entra"<<endl;
           loadCenter(bookStore,filename);
         }else if(strcmp(argv[1],"-i")==0){
           filename = argv[2];
@@ -609,7 +608,7 @@ int main(int argc, char *argv[]) {
 
   checkArgs(argc,argv,bookStore);
     
-  char option;
+  char option = 'a';
   do {
     showMainMenu();
     cin >> option;
