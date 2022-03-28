@@ -105,10 +105,10 @@ void saveData(const BookStore &bookStore);
 bool checkString(string saux);
 string createSlug(string title);
 bool checkIsNumber(string saux);
-void importCenter(BookStore &bookStore, string filename);
-void loadCenter(BookStore &bookStore,string filename);
+bool importCenter(BookStore &bookStore, string filename);
+bool loadCenter(BookStore &bookStore,string filename);
 BinBook convertBookToBin(Book &b);
-void checkArgs(int argc,char *argv[],BookStore &bookStore);
+bool checkArgs(int argc,char *argv[],BookStore &bookStore);
 
 void showMainMenu() {
   cout << "[Options]" << endl
@@ -260,7 +260,7 @@ void importFromCsv(BookStore &bookStore){
   cout << EFN;
   getline(cin,filename,'\n');
 
-  importCenter(bookStore,filename);
+  if(importCenter(bookStore,filename)){}
 }
 
 /* Función para exportar los libros a texto.
@@ -304,7 +304,7 @@ void loadData(BookStore &bookStore){
     cout << EFN;
     getline(cin,filename,'\n');
 
-    loadCenter(bookStore,filename);
+    if(loadCenter(bookStore,filename)){}
   }
 }
 
@@ -404,8 +404,11 @@ bool checkIsNumber(string saux){
  * Parámetros: 
    - filename -> Nombre del fichero
    - bookStore -> Variable para almacenar los libros
+ * Returns:
+   - true: Si se ha podido importar todo correctamente.
+   - false: Si ha habido algún error.
  */
-void importCenter(BookStore &bookStore, string filename){
+bool importCenter(BookStore &bookStore, string filename){
   ifstream ifs(filename);
 
   if(ifs.is_open()){ // Si el fichero se ha podido abrir...
@@ -484,15 +487,21 @@ void importCenter(BookStore &bookStore, string filename){
     ifs.close();
   }else{
     error(ERR_FILE);
+    return false;
   }
+
+  return true;
 }
 
 /* Función exclusivamente dedicada a leer datos en binario.
  * Parámetros:
    - bookStore -> Variable que contiene los datos.
    - filename -> String con el nombre del fichero al que queremos exportar los datos.
+ * Returns:
+   - true: Si se ha podido cargar todo correctamente.
+   - false: Si ha habido algún error.
  */
-void loadCenter(BookStore &bookStore,string filename){
+bool loadCenter(BookStore &bookStore,string filename){
   ifstream ifbs(filename,ios::binary);
   BinBookStore binBS;
 
@@ -518,7 +527,10 @@ void loadCenter(BookStore &bookStore,string filename){
     ifbs.close();
   }else{
     error(ERR_FILE);
+    return false;
   }
+
+  return true;
 }
 
 /* Función para convertir Books a BinBooks
@@ -561,44 +573,66 @@ BinBook convertBookToBin(Book &b){
  * Parámetros:
    - Int -> Número de argumentos
    - Char* -> Array con los argumentos 
+ * Returns:
+   - true: Si se ha leído todo correctamente
+   - false: Si ha habido algún error
  */
-void checkArgs(int argc,char *argv[],BookStore &bookStore){
+bool checkArgs(int argc,char *argv[],BookStore &bookStore){
   string filename;
 
   if(argc%2!=0){
     if(argc>5){
       error(ERR_ARGS);
+      return false;
     }else{
       if(argc==3){
         if(strcmp(argv[1],"-l")==0){
           filename = argv[2];
-          cout << "entra"<<endl;
-          loadCenter(bookStore,filename);
+          if(!loadCenter(bookStore,filename)){
+            return false;
+          }
         }else if(strcmp(argv[1],"-i")==0){
           filename = argv[2];
-          importCenter(bookStore,filename);
+          if(!importCenter(bookStore,filename)){
+            return false;
+          }
         }else{
           error(ERR_ARGS);
+          return false;
         }
       }else if(argc==5){
         if((strcmp(argv[1],"-l")==0) && (strcmp(argv[3],"-i")==0)){
           filename = argv[2];
-          loadCenter(bookStore,filename);
-          filename = argv[4];
-          importCenter(bookStore,filename);
+          if(!loadCenter(bookStore,filename)){
+            return false;
+          }else{
+            filename = argv[4];
+            if(!importCenter(bookStore,filename)){
+              return false;
+            }
+          }
         }else if((strcmp(argv[1],"-i")==0) && (strcmp(argv[3],"-l")==0)){
           filename = argv[4];
-          loadCenter(bookStore,filename);
-          filename = argv[2];
-          importCenter(bookStore,filename);
+          if(!loadCenter(bookStore,filename)){
+            return false;
+          }else{
+            filename = argv[2];
+            if(!importCenter(bookStore,filename)){
+              return false;
+            }
+          }
         }else{
           error(ERR_ARGS);
+          return false;
         }
       }
     }
   }else if(argc!=1){
     error(ERR_ARGS);
+    return false;
   }
+
+  return true;
 }
 
 int main(int argc, char *argv[]) {
@@ -606,58 +640,58 @@ int main(int argc, char *argv[]) {
   bookStore.name = "My Book Store";
   bookStore.nextId = 1;
 
-  checkArgs(argc,argv,bookStore);
+  if(checkArgs(argc,argv,bookStore)){
+    char option = 'a';
+    do {
+      showMainMenu();
+      cin >> option;
+      cin.get();
+
+      switch (option) {
+        case '1':
+          showCatalog(bookStore);
+          break;
+        case '2':
+          showExtendedCatalog(bookStore);
+          break;
+        case '3':
+          addBook(bookStore);
+          break;
+        case '4':
+          deleteBook(bookStore);
+          break;
+        case '5':
+          do{
+            importExportMenu(bookStore);
+            cin >> option;
+            cin.get();
+            switch(option){
+              case '1':
+                importFromCsv(bookStore);
+                break;
+              case '2':
+                exportToCsv(bookStore);
+                break;
+              case '3':
+                loadData(bookStore);
+                break;
+              case '4':
+                saveData(bookStore);
+                break;
+              case 'b':
+                break;
+              default:
+                error(ERR_OPTION);
+            }
+          }while(option != 'b');
+          break;
+        case 'q':
+          break;
+        default:
+          error(ERR_OPTION);
+      }
+    }while(option != 'q');  
+  }
     
-  char option = 'a';
-  do {
-    showMainMenu();
-    cin >> option;
-    cin.get();
-
-    switch (option) {
-      case '1':
-        showCatalog(bookStore);
-        break;
-      case '2':
-        showExtendedCatalog(bookStore);
-        break;
-      case '3':
-        addBook(bookStore);
-        break;
-      case '4':
-        deleteBook(bookStore);
-        break;
-      case '5':
-        do{
-          importExportMenu(bookStore);
-          cin >> option;
-          cin.get();
-          switch(option){
-            case '1':
-              importFromCsv(bookStore);
-              break;
-            case '2':
-              exportToCsv(bookStore);
-              break;
-            case '3':
-              loadData(bookStore);
-              break;
-            case '4':
-              saveData(bookStore);
-              break;
-            case 'b':
-              break;
-            default:
-              error(ERR_OPTION);
-          }
-        }while(option != 'b');
-        break;
-      case 'q':
-        break;
-      default:
-        error(ERR_OPTION);
-    }
-  } while (option != 'q');
-
   return 0;
 }
