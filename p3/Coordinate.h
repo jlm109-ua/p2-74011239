@@ -6,7 +6,7 @@
 using namespace std;
 
 class Coordinate{
-    private:
+    protected:
         int row;
         int column;
     public:
