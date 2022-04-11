@@ -7,7 +7,7 @@
 using namespace std;
 
 class Junk{
-    private:
+    protected:
         JunkType type;
         int quantity;
     public:
