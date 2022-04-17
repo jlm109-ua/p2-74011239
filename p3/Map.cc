@@ -79,9 +79,32 @@ Junk Map::collectJunk(const Coordinate &coord){
 
 // Sobrecarga del operador de salida de Map.
 ostream & operator<<(ostream &os,const Map &map){
-    if((map.columns < 10) && (map.rows < 10)){
-        
-    }else{
+    os << "   ";
+
+    // Primera línea del mapa
+
+    for(int i = 0,k = 0,j = 0;i < map.columns;i++,k++){
+      if(k < 10){
+        if((i + 1) == map.columns){
+          os << j << k;
+        }else{
+          os << j << k << " ";
+        }
+      }else{
+        j++;
+        k = 0;
+      }
+    }
+
+    for(int i = 0,j = 0;i < map.rows;i++){
+      os << j << i << " ";
+      for(int n = 0;n < map.columns;n++){
+        if((n + 1) == map.columns){
+          os << map.getJunk(Coordinate(j,i)).getTypeChar() << endl;
+        }else{
+          os << map.getJunk(Coordinate(j,i)).getTypeChar() << "  ";
+        }
+      }
 
     }
 
