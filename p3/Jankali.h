@@ -23,7 +23,7 @@ class Jankali{
         void spoil();
         void spoil(JunkType type);
         void spoil(int pos);
-        friend ostream & operator<<(ostream &,const Betonski &);
+        friend ostream & operator<<(ostream &,const Jankali &);
 };
 
 #endif

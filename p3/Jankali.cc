@@ -68,7 +68,69 @@ void Jankali::spoil(){
         try{
             power = betonski.spoliation();
         }catch(Exception ex){
-            // eliminar el betonski
+            for(int i = subdued.size();i >= 0;i--){
+                if((subdued[i]->getAnger() == betonski.getAnger()) && (subdued[i]->getName() == betonski.getName()) && (subdued[i]->getPosition().compare(betonski.getPosition()))){
+                    subdued.erase(subdued.begin() + i);
+                }
+
+            }
         }
+    }
+}
+
+/* Función para expoliar los recursos de todos los betonski capturados.
+ * Parámetros: JunkType type: Recuso a expoliar.
+ */
+void Jankali::spoil(JunkType type){
+    for(Betonski betonski : subdued){
+        try{
+            power = betonski.spoliation(type);
+        }catch(Exception ex){
+            for(int i = subdued.size();i >= 0;i--){
+                if((subdued[i]->getAnger() == betonski.getAnger()) && (subdued[i]->getName() == betonski.getName()) && (subdued[i]->getPosition().compare(betonski.getPosition()))){
+                    subdued.erase(subdued.begin() + i);
+                }
+
+            }
+        }
+    }
+}
+
+/* Función para expoliar los recursos de todos los betonski capturados.
+ * Parámetros: JunkType type: Recuso a expoliar.
+ */
+void Jankali::spoil(JunkType type){
+    for(Betonski betonski : subdued){
+        try{
+            power = betonski.spoliation(type);
+        }catch(Exception ex){
+            for(int i = subdued.size();i >= 0;i--){
+                if((subdued[i]->getAnger() == betonski.getAnger()) && (subdued[i]->getName() == betonski.getName()) && (subdued[i]->getPosition().compare(betonski.getPosition()))){
+                    subdued.erase(subdued.begin() + i);
+                }
+
+            }
+        }
+    }
+}
+
+/* Función para expoliar a un Betonski en concreto.
+ * Parámetros: int pos: Posición del Betonski en el vector subdued.
+ */
+void Jankali::spoil(int pos){
+    if((pos < subdued.size()) || (pos >= 0)){
+        subdued[pos]->spoliation();
+    }
+}
+
+// Sobrecarga del operador de salida.
+ostream & operator<<(ostream &os,const Jankali &jankali){
+    os << "Jankali " << '"' << jankali.getName() << '"' << " " << jankali.getPower() << endl;
+    for(Betonski betonski : jankali.subdued){
+        os << betonski << endl;
+    }
+    os << "Traps ";
+    for(Coordinate coord : jankali.traps){
+        os << coord;
     }
 }

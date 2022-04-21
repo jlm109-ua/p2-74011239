@@ -12,7 +12,7 @@ class Map{
     protected:
         int rows;
         int columns;
-        vector<vector<Junk>> junks;
+        vector<vector<Junk> > junks;
     public:
         Map(int,int);
         bool isInside(const Coordinate &) const;
