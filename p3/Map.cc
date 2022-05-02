@@ -72,7 +72,7 @@ Junk Map::collectJunk(const Coordinate &coord){
     Junk junk(junks[coord.getRow()][coord.getColumn()]);
     Junk wasteland;
 
-    junks[coord.getRow()][coord.getColumn()] == wasteland;
+    junks[coord.getRow()][coord.getColumn()] = wasteland;
 
     return junk;
 }
@@ -96,13 +96,21 @@ ostream & operator<<(ostream &os,const Map &map){
       }
     }
 
+    // Resto del mapa
+
     for(int i = 0,j = 0;i < map.rows;i++){
       os << j << i << " ";
       for(int n = 0;n < map.columns;n++){
         if((n + 1) == map.columns){
-          os << map.getJunk(Coordinate(j,i)).getTypeChar() << endl;
+          if(map.getJunk(Coordinate(j,i)).getType() != 0)
+            os << map.getJunk(Coordinate(j,i)).getTypeChar() << endl;
+          else
+            os << " " << endl;
         }else{
-          os << map.getJunk(Coordinate(j,i)).getTypeChar() << "  ";
+          if(map.getJunk(Coordinate(j,i)).getType() != 0)
+            os << map.getJunk(Coordinate(j,i)).getTypeChar() << "  ";
+          else
+            os << "   ";
         }
       }
 

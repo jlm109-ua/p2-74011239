@@ -4,6 +4,8 @@
 
 using namespace std;
 
+const string SJUNKTYPE[] = {"WASTELAND","GOLD","METAL","FOOD","STONE"};
+
 // Constructor por defecto de Junk.
 Junk::Junk(){
     type = WASTELAND;
@@ -13,7 +15,7 @@ Junk::Junk(){
 // Constructor con parámetros de Junk.
 Junk::Junk(JunkType type,int quantity){
     this->type = type;
-    if(quantity<0)
+    if(quantity>=0)
         this->quantity = quantity;
     else
         throw EXCEPTION_QUANTITY;
@@ -59,6 +61,6 @@ int Junk::getValue() const{
 
 // Operador de salida de Junk.
 ostream & operator<<(ostream &os,const Junk &junk){
-    os << "[" << junk.getType() << ":" << junk.getQuantity() << "]";
+    os << "[" << SJUNKTYPE[junk.getType()] << ":" << junk.getQuantity() << "]";
     return os;
 }

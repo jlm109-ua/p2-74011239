@@ -54,8 +54,8 @@ void Betonski::setPosition(const Coordinate &coord){
 int Betonski::calculateValue(){
     int value = 0;
 
-    for(Junk junk : bag){
-        value += junk.getValue();
+    for(unsigned i = 0;i < bag.size();i++){
+        value += bag[i].getValue();
     }
 
     return value;
@@ -64,9 +64,9 @@ int Betonski::calculateValue(){
 int Betonski::calculateValue(JunkType type){
     int value = 0;
 
-    for(Junk junk : bag){
-        if(junk.getType() == type){
-            value += junk.getValue();
+    for(unsigned i = 0;i < bag.size();i++){
+        if(bag[i].getType() == type){
+            value += bag[i].getValue();
         }
     }
 
@@ -117,7 +117,7 @@ int Betonski::spoliation(JunkType type){
                 }
             }
 
-            return value + anger;
+            return value;
         }
     }else
         throw BETONSKI_NOT_CAPTURED;
@@ -149,28 +149,28 @@ bool Betonski::move(const Map &map){
         Coordinate aux;
         switch(value){
             case 0:
-                aux = Coordinate(position.getColumn(),position.getRow() - 1);
+                aux = Coordinate(position.getRow(),position.getColumn() - 1);
                 break;
             case 1:
-                aux = Coordinate(position.getColumn() + 1,position.getRow() - 1);
+                aux = Coordinate(position.getRow() + 1,position.getColumn() - 1);
                 break;
             case 2:
-                aux = Coordinate(position.getColumn() + 1,position.getRow());
+                aux = Coordinate(position.getRow() + 1,position.getColumn());
                 break;
             case 3:
-                aux = Coordinate(position.getColumn() + 1,position.getRow() + 1);
+                aux = Coordinate(position.getRow() + 1,position.getColumn() + 1);
                 break;
             case 4:
-                aux = Coordinate(position.getColumn(),position.getRow() + 1);
+                aux = Coordinate(position.getRow(),position.getColumn() + 1);
                 break;
             case 5:
-                aux = Coordinate(position.getColumn() - 1,position.getRow() + 1);
+                aux = Coordinate(position.getRow() - 1,position.getColumn() + 1);
                 break;
             case 6:
-                aux = Coordinate(position.getColumn() - 1,position.getRow());
+                aux = Coordinate(position.getRow() - 1,position.getColumn());
                 break;
             case 7:
-                aux = Coordinate(position.getColumn() - 1,position.getRow() - 1);
+                aux = Coordinate(position.getRow() - 1,position.getColumn() - 1);
         }
         
         if(map.isInside(aux)){
@@ -185,7 +185,7 @@ bool Betonski::move(const Map &map){
 }
 
 ostream & operator<<(ostream &os,const Betonski &betonski){
-    os << "Betonski " << '"' << betonski.getName() << '" ';
+    os << "Betonski " << '"' << betonski.getName() << '"' << " ";
     if(betonski.isCaptured())
         os << "Captured ";
     else
@@ -193,8 +193,8 @@ ostream & operator<<(ostream &os,const Betonski &betonski){
 
     os << betonski.getAnger() << betonski.getPosition() << endl;
 
-    for(Junk junk : bag){
-        os << junk;
+    for(unsigned i = 0;i < betonski.bag.size();i++){
+        os << betonski.bag[i];
     }
 
     return os;
