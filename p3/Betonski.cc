@@ -149,25 +149,25 @@ bool Betonski::move(const Map &map){
         Coordinate aux;
         switch(value){
             case 0:
-                aux = Coordinate(position.getRow(),position.getColumn() - 1);
+                aux = Coordinate(position.getRow() - 1,position.getColumn());
                 break;
             case 1:
-                aux = Coordinate(position.getRow() + 1,position.getColumn() - 1);
+                aux = Coordinate(position.getRow() - 1,position.getColumn() + 1);
                 break;
             case 2:
-                aux = Coordinate(position.getRow() + 1,position.getColumn());
+                aux = Coordinate(position.getRow(),position.getColumn() + 1);
                 break;
             case 3:
                 aux = Coordinate(position.getRow() + 1,position.getColumn() + 1);
                 break;
             case 4:
-                aux = Coordinate(position.getRow(),position.getColumn() + 1);
+                aux = Coordinate(position.getRow() + 1,position.getColumn());
                 break;
             case 5:
-                aux = Coordinate(position.getRow() - 1,position.getColumn() + 1);
+                aux = Coordinate(position.getRow() + 1,position.getColumn() - 1);
                 break;
             case 6:
-                aux = Coordinate(position.getRow() - 1,position.getColumn());
+                aux = Coordinate(position.getRow(),position.getColumn() - 1);
                 break;
             case 7:
                 aux = Coordinate(position.getRow() - 1,position.getColumn() - 1);
@@ -191,10 +191,17 @@ ostream & operator<<(ostream &os,const Betonski &betonski){
     else
         os << "Free ";
 
-    os << betonski.getAnger() << betonski.getPosition() << endl;
+    os << betonski.getAnger() << " " << betonski.getPosition() << "\n";
 
-    for(unsigned i = 0;i < betonski.bag.size();i++){
-        os << betonski.bag[i];
+    if(betonski.bag.size() == 0){
+        os << "\n";
+    }else{
+        for(unsigned i = 0;i < betonski.bag.size();i++){
+            if((i + 1) == betonski.bag.size())
+                os << betonski.bag[i];
+            else
+                os << betonski.bag[i] << " ";
+        }
     }
 
     return os;

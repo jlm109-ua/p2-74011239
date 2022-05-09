@@ -30,7 +30,7 @@ int Jankali::getPower() const{
 void Jankali::hunt(vector<Betonski *> betonskis){
     for(unsigned i = 0;i < betonskis.size();i++){
         for(unsigned j = 0;j < traps.size();j++){
-            if((!betonskis[i]->isCaptured()) && traps[i].compare(betonskis[i]->getPosition())){
+            if((!betonskis[i]->isCaptured()) && traps[j].compare(betonskis[i]->getPosition())){
                 subdued.push_back(betonskis[i]);
                 betonskis[i]->capture();
             }
@@ -67,13 +67,12 @@ bool Jankali::setTrap(const Coordinate &coord){
 void Jankali::spoil(){
     for(unsigned i = 0;i < subdued.size();i++){
         try{
-            power = subdued[i]->spoliation();
+            power += subdued[i]->spoliation();
         }catch(Exception ex){
-            for(int i = subdued.size();i >= 0;i--){
-                if((subdued[i]->getAnger() == subdued[i]->getAnger()) && (subdued[i]->getName() == subdued[i]->getName()) && (subdued[i]->getPosition().compare(subdued[i]->getPosition()))){
+            for(int j = subdued.size()-1;j >= 0;j--){
+                if((subdued[j]->getAnger() == subdued[i]->getAnger()) && (subdued[j]->getName() == subdued[i]->getName()) && (subdued[j]->getPosition().compare(subdued[i]->getPosition()))){
                     subdued.erase(subdued.begin() + i);
                 }
-
             }
         }
     }
@@ -85,7 +84,7 @@ void Jankali::spoil(){
 void Jankali::spoil(JunkType type){
     for(unsigned i = 0;i < subdued.size();i++){
         try{
-            power = subdued[i]->spoliation(type);
+            power += subdued[i]->spoliation(type);
         }catch(Exception ex){
             for(unsigned i = subdued.size();i >= 0;i--){
                 if((subdued[i]->getAnger() == subdued[i]->getAnger()) && (subdued[i]->getName() == subdued[i]->getName()) && (subdued[i]->getPosition().compare(subdued[i]->getPosition()))){
@@ -105,20 +104,22 @@ void Jankali::spoil(int pos){
         unsigned u = pos;
 
         if(u < subdued.size())
-            subdued[u]->spoliation();
+            power += subdued[u]->spoliation();
     }
 }
 
 // Sobrecarga del operador de salida.
 ostream & operator<<(ostream &os,const Jankali &jankali){
-    os << "Jankali " << '"' << jankali.getName() << '"' << " " << jankali.getPower() << endl;
+    os << "Jankali " << '"' << jankali.getName() << '"' << " " << jankali.getPower() << "\n";
     for(unsigned i = 0;i < jankali.subdued.size();i++){
-        os << jankali.subdued[i] << endl;
+        os << (*jankali.subdued[i]) << "\n";
     }
     os << "Traps ";
-    for(unsigned i = 0;i < jankali.traps.size();i++){
-        os << jankali.traps[i];
+    for(unsigned j = 0;j < jankali.traps.size();j++){
+        os << jankali.traps[j];
     }
+
+    os << "\n";
 
     return os;
 }

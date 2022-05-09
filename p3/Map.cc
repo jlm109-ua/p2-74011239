@@ -86,7 +86,7 @@ ostream & operator<<(ostream &os,const Map &map){
     for(int i = 0,k = 0,j = 0;i < map.columns;i++,k++){
       if(k < 10){
         if((i + 1) == map.columns){
-          os << j << k;
+          os << j << k << "\n";
         }else{
           os << j << k << " ";
         }
@@ -95,6 +95,10 @@ ostream & operator<<(ostream &os,const Map &map){
         k = 0;
       }
     }
+
+    // 00 01 02 03 04 05 06 07 08 09
+
+
 
     // Resto del mapa
 

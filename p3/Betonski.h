@@ -13,7 +13,7 @@ class Betonski{
     protected:
         string name;
         int anger;
-        vector <Junk> bag;
+        vector<Junk> bag;
         Coordinate position;
         bool captured;
     public:

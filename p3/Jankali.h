@@ -10,8 +10,8 @@ using namespace std;
 
 class Jankali{
     protected:
-        vector <Betonski *> subdued;
-        vector <Coordinate> traps;
+        vector<Betonski *> subdued;
+        vector<Coordinate> traps;
         string name;
         int power;
     public:
