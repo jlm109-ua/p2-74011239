@@ -1,4 +1,4 @@
-// Juan Llinares Mauri - 74011239E
+// DNI 74011239E LLINARES MAURI, JUAN
 #include <iostream>
 #ifndef _COORDINATE_H_
 #define _COORDINATE_H_

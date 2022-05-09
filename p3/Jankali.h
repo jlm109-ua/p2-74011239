@@ -1,4 +1,4 @@
-// Juan Llinares Mauri - 74011239E
+// DNI 74011239E LLINARES MAURI, JUAN
 #include <iostream>
 #include "Betonski.h"
 #include "Util.h"
