@@ -102,15 +102,17 @@ ostream & operator<<(ostream &os,const Map &map){
       os << j << i << " ";
       for(int n = 0;n < map.columns;n++){
         if((n + 1) == map.columns){
-          if(map.getJunk(Coordinate(j,i)).getType() != 0)
-            os << map.getJunk(Coordinate(j,i)).getTypeChar() << endl;
-          else
+          if(map.getJunk(Coordinate(i,n)).getType() != 0){
+            os << map.getJunk(Coordinate(i,n)).getTypeChar() << endl;
+          }else{
             os << " " << endl;
+          }
         }else{
-          if(map.getJunk(Coordinate(j,i)).getType() != 0)
-            os << map.getJunk(Coordinate(j,i)).getTypeChar() << "  ";
-          else
+          if(map.getJunk(Coordinate(i,n)).getType() != 0){
+            os << map.getJunk(Coordinate(i,n)).getTypeChar() << "  ";
+          }else{
             os << "   ";
+          }
         }
       }
 
